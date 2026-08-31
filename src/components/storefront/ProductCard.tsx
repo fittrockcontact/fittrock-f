@@ -2,9 +2,10 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ShoppingCart, Star } from 'lucide-react';
+import { ShoppingBag, Plus } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 import { useCartStore } from '@/store/use-cart-store';
+import { toast } from 'sonner';
 
 export interface ProductCardProps {
   product: {
@@ -16,6 +17,7 @@ export interface ProductCardProps {
     compareAtPrice?: string | null;
     imageUrl?: string;
     imageUrls?: string[];
+    isSale?: boolean;
     variants?: Array<{
       id: string;
       sku: string;
@@ -29,11 +31,12 @@ export interface ProductCardProps {
       isDefault?: boolean;
     }>;
   };
+  className?: string;
 }
 
-const DEFAULT_PUNE_IMAGE = 'https://res.cloudinary.com/strangermingle/image/upload/v1775051643/Pune_Culture_hgjgum.webp';
+const DEFAULT_DESK_IMAGE = '/hero.png';
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, className = '' }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
 
   const safeVariants = Array.isArray(product?.variants) && product.variants.length > 0 ? product.variants : [];
@@ -47,14 +50,14 @@ export function ProductCard({ product }: ProductCardProps) {
     product.imageUrl ||
     (Array.isArray(product.imageUrls) && product.imageUrls[0]) ||
     variantImages[0] ||
-    DEFAULT_PUNE_IMAGE;
+    DEFAULT_DESK_IMAGE;
 
-  const price = defaultVariant ? parseFloat(defaultVariant.price) : parseFloat(product.basePrice || '0');
+  const price = defaultVariant ? parseFloat(defaultVariant.price) : parseFloat(product.basePrice || '24990');
   const compareAtPrice = defaultVariant?.compareAtPrice
     ? parseFloat(defaultVariant.compareAtPrice)
     : product.compareAtPrice
     ? parseFloat(product.compareAtPrice)
-    : null;
+    : price * 1.6;
 
   const stockQuantity = defaultVariant
     ? (defaultVariant.stockQuantity ?? defaultVariant.inventoryQuantity ?? 10)
@@ -63,6 +66,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (isOutOfStock) return;
 
     addItem({
@@ -78,79 +82,65 @@ export function ProductCard({ product }: ProductCardProps) {
       stockQuantity,
       quantity: 1,
     });
+    toast.success(`Added ${product.name} to cart!`);
   };
 
   return (
-    <div className="group relative bg-white border border-zinc-200 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-zinc-300 hover:shadow-md transition-all duration-300">
+    <div
+      className={`group relative bg-white border border-zinc-200/90 rounded-2xl overflow-hidden flex flex-col justify-between shadow-md hover:shadow-2xl transition-all duration-300 ${className}`}
+    >
       <Link href={`/products/${product.slug}`} className="block">
-        {/* Image Container */}
-        <div className="relative aspect-4/3 sm:aspect-square overflow-hidden bg-zinc-100">
+        {/* Large Product Image Container with Sale watermark, Logo, and Quick Add */}
+        <div className="relative aspect-square overflow-hidden bg-zinc-100 flex items-center justify-center">
           <img
             src={mainImage}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
 
-          {/* Badges */}
-          <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 flex flex-col gap-1.5 z-10">
-            {compareAtPrice && compareAtPrice > price && (
-              <span className="bg-amber-500 text-zinc-950 text-[10px] sm:text-[11px] font-extrabold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md uppercase tracking-wider shadow-sm">
-                SAVE {Math.round(((compareAtPrice - price) / compareAtPrice) * 100)}%
-              </span>
-            )}
-            {isOutOfStock ? (
-              <span className="bg-red-100 text-red-700 border border-red-200 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">
-                Sold Out
-              </span>
-            ) : stockQuantity <= 5 ? (
-              <span className="bg-amber-100 text-amber-800 border border-amber-200 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">
-                Only {stockQuantity} Left
-              </span>
-            ) : null}
-          </div>
+          {/* Top Left: Sale Tag */}
+          <span className="absolute top-4 left-4 text-xs sm:text-sm font-normal text-zinc-500 select-none">
+            Sale
+          </span>
+
+          {/* Top Right: Fittrock Logo Watermark */}
+          <span className="absolute top-4 right-4 text-sm sm:text-base font-semibold tracking-tight font-sans text-zinc-600/90 select-none">
+            FİTTROCK
+          </span>
+
+          {/* Bottom Right: Circular Quick Add Cart Button */}
+          <button
+            onClick={handleQuickAdd}
+            disabled={isOutOfStock}
+            aria-label="Add to cart"
+            title="Quick Add to Cart"
+            className="absolute bottom-4 right-4 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/95 text-zinc-900 border border-zinc-200 shadow-lg flex items-center justify-center hover:bg-black hover:text-white hover:border-black active:scale-95 transition-all z-10"
+          >
+            <div className="relative flex items-center justify-center">
+              <ShoppingBag className="w-4 h-4" />
+              <Plus className="w-2.5 h-2.5 absolute -top-1 -right-1 stroke-[3]" />
+            </div>
+          </button>
         </div>
 
-        {/* Info */}
-        <div className="p-4 sm:p-5 space-y-2 sm:space-y-3">
-          <div className="flex items-center gap-1 text-amber-600 text-xs font-semibold">
-            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-            <span>4.9 (48)</span>
-          </div>
-
-          <h3 className="font-bold text-zinc-900 text-base sm:text-lg group-hover:text-amber-600 transition-colors line-clamp-1">
+        {/* Product Details with Semibold Maroon Title & Pricing */}
+        <div className="p-4 sm:p-5 text-center flex flex-col items-center justify-center space-y-2">
+          <h3 className="text-sm sm:text-base font-semibold text-[#a32222] hover:underline line-clamp-2 leading-snug max-w-sm">
             {product.name}
           </h3>
 
-          <p className="text-zinc-600 text-xs line-clamp-2 leading-relaxed">
-            {product.description}
-          </p>
-
-          <div className="flex items-baseline gap-2 pt-1">
-            <span className="text-lg sm:text-xl font-black text-zinc-900">{formatPrice(price)}</span>
-            {compareAtPrice && (
-              <span className="text-xs text-zinc-400 line-through font-medium">
+          <div className="flex items-center justify-center gap-2 pt-0.5">
+            <span className="text-sm sm:text-base font-semibold text-zinc-950">
+              {formatPrice(price)}
+            </span>
+            {compareAtPrice && compareAtPrice > price && (
+              <span className="text-xs sm:text-sm text-zinc-400 line-through font-normal">
                 {formatPrice(compareAtPrice)}
               </span>
             )}
           </div>
         </div>
       </Link>
-
-      {/* Quick Add Button with Min 44px touch target */}
-      <div className="p-4 sm:p-5 pt-0">
-        <button
-          onClick={handleQuickAdd}
-          disabled={isOutOfStock}
-          className={`w-full min-h-[44px] py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
-            isOutOfStock
-              ? 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
-              : 'bg-zinc-100 hover:bg-amber-500 hover:text-zinc-950 text-zinc-800 border border-zinc-200 hover:border-amber-500'
-          }`}
-        >
-          <ShoppingCart className="w-4 h-4" />
-          <span>{isOutOfStock ? 'Sold Out' : 'Quick Add'}</span>
-        </button>
-      </div>
     </div>
   );
 }
