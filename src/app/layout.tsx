@@ -17,6 +17,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Fittrock Ergonomics | Premium Height Adjustable Standing Desks & Chairs",
   description: "Upgrade your posture with dual-motor height adjustable electric standing desks, lumbar mesh chairs, and heavy duty monitor arms.",
+  icons: {
+    icon: [
+      { url: "/logo.svg", type: "image/svg+xml" },
+      { url: "/logo.png", type: "image/png" },
+      { url: "/logo.ico", sizes: "any" },
+    ],
+    shortcut: "/logo.ico",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -14,6 +14,8 @@ import {
 } from 'firebase/auth';
 import { auth, googleProvider } from './config';
 import { trackEvent } from './analytics';
+import { apiFetch } from '@/lib/api-client';
+import { useCartStore } from '@/store/use-cart-store';
 
 interface AuthContextType {
   user: User | null;
@@ -24,6 +26,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   getIdToken: () => Promise<string | null>;
+  syncProfileToDb: (currUser: User, name?: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,10 +35,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const syncProfileToDb = async (currUser: User, overrideName?: string) => {
+    try {
+      await apiFetch('/api/customers/sync', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: currUser.email,
+          fullName: overrideName || currUser.displayName || currUser.email?.split('@')[0],
+          avatarUrl: currUser.photoURL || null,
+          phone: currUser.phoneNumber || null,
+        }),
+      });
+    } catch (e) {
+      console.warn('Database customer profile sync note:', e);
+    }
+  };
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       setLoading(false);
+      if (currentUser) {
+        syncProfileToDb(currentUser);
+        if (currentUser.email) {
+          useCartStore.getState().setUserEmail(currentUser.email);
+        }
+      } else {
+        useCartStore.getState().setUserEmail(null);
+      }
     });
 
     return () => unsubscribe();
@@ -44,6 +71,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithEmail = async (email: string, password: string) => {
     const res = await signInWithEmailAndPassword(auth, email, password);
     trackEvent('login', { method: 'email' });
+    if (res.user) {
+      syncProfileToDb(res.user);
+      if (res.user.email) {
+        useCartStore.getState().setUserEmail(res.user.email);
+      }
+    }
     return res;
   };
 
@@ -53,16 +86,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await updateProfile(res.user, { displayName });
     }
     trackEvent('sign_up', { method: 'email' });
+    if (res.user) {
+      syncProfileToDb(res.user, displayName);
+      if (res.user.email) {
+        useCartStore.getState().setUserEmail(res.user.email);
+      }
+    }
     return res;
   };
 
   const signInWithGoogle = async () => {
     const res = await signInWithPopup(auth, googleProvider);
     trackEvent('login', { method: 'google' });
+    if (res.user) {
+      syncProfileToDb(res.user);
+      if (res.user.email) {
+        useCartStore.getState().setUserEmail(res.user.email);
+      }
+    }
     return res;
   };
 
   const logout = async () => {
+    useCartStore.getState().setUserEmail(null);
     await signOut(auth);
     trackEvent('logout');
   };
@@ -87,6 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         resetPassword,
         getIdToken,
+        syncProfileToDb,
       }}
     >
       {children}

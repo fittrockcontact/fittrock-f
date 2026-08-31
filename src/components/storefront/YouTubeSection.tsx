@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, ExternalLink, Film, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Play, ExternalLink, ChevronRight, ChevronLeft } from 'lucide-react';
 
 function YouTubeIcon({ className }: { className?: string }) {
   return (
@@ -31,79 +31,66 @@ export function YouTubeSection() {
       id: 'ZjxVxJks2so',
       title: 'This Standing Desk Looks PREMIUM 💼⚡',
       thumbnail: 'https://i.ytimg.com/vi/ZjxVxJks2so/hqdefault.jpg',
-      views: '1.2K views',
     },
     {
       id: '8tRBbeB45qk',
       title: 'Rati Single Motor But SUPER Smooth ⚡😱 @FITTROCK',
       thumbnail: 'https://i.ytimg.com/vi/8tRBbeB45qk/hqdefault.jpg',
-      views: '2.4K views',
     },
     {
       id: 'law7ZaQqPGg',
       title: 'RATI Single Motor = Productivity Boost @FITTROCK',
       thumbnail: 'https://i.ytimg.com/vi/law7ZaQqPGg/hqdefault.jpg',
-      views: '1.8K views',
     },
     {
       id: 'HdCK_mcsw0U',
       title: 'From AM to PM Without Back Pain @FITTROCK',
       thumbnail: 'https://i.ytimg.com/vi/HdCK_mcsw0U/hqdefault.jpg',
-      views: '3.1K views',
     },
     {
       id: '0XE_UlfLVc0',
       title: 'Dual Motor Power 😳🔥 | Kuber Desk by @FITTROCK',
       thumbnail: 'https://i.ytimg.com/vi/0XE_UlfLVc0/hqdefault.jpg',
-      views: '4.5K views',
     },
     {
       id: '2Srn48EX9FM',
       title: 'India’s Most Flexible Desk? 🔥 | Yogeek Floor to Standing Setup',
       thumbnail: 'https://i.ytimg.com/vi/2Srn48EX9FM/hqdefault.jpg',
-      views: '5.2K views',
     },
     {
       id: '8UDj4KClbgA',
       title: 'Floor to Standing in Seconds 😳🔥 | Yogeek Desk by @FITTROCK',
       thumbnail: 'https://i.ytimg.com/vi/8UDj4KClbgA/hqdefault.jpg',
-      views: '2.9K views',
     },
     {
       id: 'U8ALhboHBTA',
       title: '₹17K Desk That FIXES Your Back 😳🔥',
       thumbnail: 'https://i.ytimg.com/vi/U8ALhboHBTA/hqdefault.jpg',
-      views: '6.7K views',
     },
     {
       id: '_7Hm0oH_TrI',
       title: 'Don’t Buy a Desk Before Watching This 😱 | Yogeek by Fittrock',
       thumbnail: 'https://i.ytimg.com/vi/_7Hm0oH_TrI/hqdefault.jpg',
-      views: '3.8K views',
     },
     {
       id: 'ZhvjQjAS6cI',
       title: 'Electric Height Adjustable Standing Desk | @fittrock',
       thumbnail: 'https://i.ytimg.com/vi/ZhvjQjAS6cI/hqdefault.jpg',
-      views: '4.1K views',
     },
     {
       id: 'zGXRfvsNAtk',
       title: 'Game-Changer for WFH Setup! FITTROCK 😍',
       thumbnail: 'https://i.ytimg.com/vi/zGXRfvsNAtk/hqdefault.jpg',
-      views: '2.3K views',
     },
     {
       id: '2WlSpOy0DeY',
       title: 'Turn Your Work Into Comfort! #FITTROCK',
       thumbnail: 'https://i.ytimg.com/vi/2WlSpOy0DeY/hqdefault.jpg',
-      views: '1.9K views',
     },
     {
       id: 'f4gJUHlST88',
       title: 'FITTROCK Future of Ergonomics',
       thumbnail: 'https://i.ytimg.com/vi/f4gJUHlST88/hqdefault.jpg',
-      views: '2.1K views',
     },
   ];
 
@@ -158,9 +145,9 @@ export function YouTubeSection() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 bg-red-600/15 text-red-400 border border-red-500/30 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
-              <Film className="w-3.5 h-3.5" />
-              <span>@FITTROCK YouTube Shorts</span>
+            <div className="inline-flex items-center gap-2 bg-zinc-900 text-zinc-300 border border-zinc-700/60 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wider">
+              <YouTubeIcon className="w-3.5 h-3.5 text-zinc-300" />
+              <span>@FITTROCK on YouTube</span>
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
               Watch Fittrock In Action
@@ -176,22 +163,22 @@ export function YouTubeSection() {
               href="https://www.youtube.com/@FITTROCK/shorts"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs sm:text-sm shadow-md transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs sm:text-sm border border-zinc-700 shadow-md transition-colors"
             >
-              <YouTubeIcon className="w-4 h-4 text-red-600" />
-              <span>View All Shorts on YouTube</span>
-              <ExternalLink className="w-3.5 h-3.5 text-zinc-500" />
+              <YouTubeIcon className="w-4 h-4 text-white" />
+              <span>Watch on YouTube</span>
+              <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
             </a>
           </div>
         </div>
 
-        {/* Slidable Single Row Shorts Carousel with Hover & Click-to-Play */}
+        {/* Slidable Single Row Carousel with Hover & Click-to-Play */}
         <div className="relative group">
           {/* Left Navigation Arrow */}
           <button
             onClick={() => scroll('left')}
-            aria-label="Previous shorts"
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 sm:-translate-x-5 w-11 h-11 rounded-full bg-black/85 text-white border border-zinc-700 shadow-2xl flex items-center justify-center hover:bg-black hover:scale-110 active:scale-95 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 z-20"
+            aria-label="Previous videos"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 sm:-translate-x-5 w-11 h-11 rounded-full bg-zinc-900/90 text-white border border-zinc-700 shadow-2xl flex items-center justify-center hover:bg-zinc-800 hover:scale-110 active:scale-95 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 z-20"
           >
             <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
           </button>
@@ -214,9 +201,9 @@ export function YouTubeSection() {
                   onClick={(e) => handleCardClick(short.id, e)}
                   className={`group/card relative cursor-pointer rounded-2xl overflow-hidden bg-zinc-900 border ${
                     isPlaying
-                      ? 'border-red-500 shadow-red-950/40 ring-2 ring-red-500/30'
+                      ? 'border-white/60 shadow-2xl ring-2 ring-white/20'
                       : 'border-zinc-800 hover:border-zinc-700'
-                  } shadow-xl transition-all duration-300 shrink-0 snap-start flex flex-col justify-between w-[230px] sm:w-[260px] md:w-[280px] aspect-[9/16] p-4`}
+                  } shadow-xl transition-all duration-300 shrink-0 snap-start flex items-center justify-center w-[230px] sm:w-[260px] md:w-[280px] aspect-[9/16]`}
                 >
                   {isPlaying ? (
                     <div className="absolute inset-0 bg-black z-10">
@@ -234,29 +221,13 @@ export function YouTubeSection() {
                       <img
                         src={short.thumbnail}
                         alt={short.title}
-                        className="absolute inset-0 w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700 opacity-85 group-hover/card:opacity-100"
+                        className="absolute inset-0 w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700 opacity-90 group-hover/card:opacity-100"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-black/40" />
+                      <div className="absolute inset-0 bg-black/20 group-hover/card:bg-black/10 transition-colors" />
 
-                      {/* Top Row Badge */}
-                      <div className="relative z-10 flex items-center justify-between">
-                        <span className="inline-flex items-center gap-1 bg-red-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-md shadow">
-                          <Film className="w-3 h-3" />
-                          Shorts
-                        </span>
-                      </div>
-
-                      {/* Center Play Button Overlay */}
-                      <div className="relative z-10 self-center w-12 h-12 rounded-full bg-red-600/90 text-white flex items-center justify-center shadow-2xl group-hover/card:scale-115 group-hover/card:bg-red-600 transition-all duration-300">
-                        <Play className="w-5 h-5 fill-current ml-0.5" />
-                      </div>
-
-                      {/* Bottom Row Title & Views */}
-                      <div className="relative z-10 space-y-1">
-                        <h4 className="text-xs sm:text-sm font-semibold text-white group-hover/card:text-red-400 transition-colors line-clamp-2 leading-snug">
-                          {short.title}
-                        </h4>
-                        <p className="text-[11px] text-zinc-400 font-medium">{short.views}</p>
+                      {/* Center Play Button Overlay (Gray / White) */}
+                      <div className="relative z-10 w-14 h-14 rounded-full bg-zinc-900/85 text-white border border-zinc-700/80 flex items-center justify-center shadow-2xl backdrop-blur-sm group-hover/card:scale-115 group-hover/card:bg-white group-hover/card:text-zinc-950 group-hover/card:border-white transition-all duration-300">
+                        <Play className="w-6 h-6 fill-current ml-0.5" />
                       </div>
                     </>
                   )}
@@ -268,8 +239,8 @@ export function YouTubeSection() {
           {/* Right Navigation Arrow */}
           <button
             onClick={() => scroll('right')}
-            aria-label="Next shorts"
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 sm:translate-x-5 w-11 h-11 rounded-full bg-black/85 text-white border border-zinc-700 shadow-2xl flex items-center justify-center hover:bg-black hover:scale-110 active:scale-95 transition-all z-20"
+            aria-label="Next videos"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 sm:translate-x-5 w-11 h-11 rounded-full bg-zinc-900/90 text-white border border-zinc-700 shadow-2xl flex items-center justify-center hover:bg-zinc-800 hover:scale-110 active:scale-95 transition-all z-20"
           >
             <ChevronRight className="w-6 h-6 stroke-[2.5]" />
           </button>

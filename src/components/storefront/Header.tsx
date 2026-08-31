@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { ShoppingBag, User, Search, Menu, X, ArrowRight, ChevronDown, Sparkles } from 'lucide-react';
 import { useCartStore } from '@/store/use-cart-store';
@@ -33,29 +34,30 @@ const MEGA_MENUS: Record<string, MegaMenuConfig> = {
   'adjustable-desk': {
     sections: [
       {
-        heading: 'By Motor & Design',
+        heading: 'By Series & Motors',
         items: [
           {
-            title: 'Dual-Motor Pro Desks',
+            title: 'Kuber Pro Dual-Motor Desks',
             href: '/collections/standing-desks',
-            desc: '125kg capacity, whisper-quiet dual drives & 4 presets.',
+            desc: '125kg heavy-duty load, dual ultra-quiet motors (<42dB) & 4 memory presets.',
             badge: 'Bestseller',
           },
           {
-            title: 'Single-Motor Essential',
+            title: 'RATI S1 Single-Motor Desks',
             href: '/collections/standing-desks',
-            desc: 'Compact & reliable daily workstation with smooth lift.',
+            desc: 'Smooth motorized height adjustment (71–119cm) for daily work.',
+            badge: 'Popular',
           },
           {
-            title: 'L-Shaped Corner Desks',
-            href: '/collections/standing-desks',
-            desc: 'Maximum surface area with synchronized triple-motor frame.',
-            badge: 'New',
+            title: 'Motorized Desk Frames Only',
+            href: '/collections/desk-frames',
+            desc: 'Heavy-duty steel frame structures for custom tabletop builds.',
+            badge: 'Frame Only',
           },
           {
-            title: 'Manual Height Desks',
+            title: 'All Standing Desks',
             href: '/collections/standing-desks',
-            desc: 'Zero-power smooth crank mechanism for flexible spaces.',
+            desc: 'Explore the complete motorized height-adjustable standing desk catalog.',
           },
         ],
       },
@@ -63,140 +65,205 @@ const MEGA_MENUS: Record<string, MegaMenuConfig> = {
         heading: 'By Tabletop Finish',
         items: [
           {
-            title: 'Solid Teak & Oak Hardwood',
-            href: '/collections/standing-desks',
-            desc: 'Natural continuous grain with premium beveled edges.',
-            badge: 'Premium',
+            title: 'Dark Maple Woodgrain',
+            href: '/products/kuber-d1-dark-mapple',
+            desc: 'Rich warm executive woodgrain with stain-resistant coating.',
+            badge: 'Executive',
           },
           {
-            title: 'Walnut Dark Finish',
-            href: '/collections/standing-desks',
-            desc: 'Rich executive aesthetic with stain-resistant coating.',
+            title: 'Ice Beach Natural Finish',
+            href: '/products/kuber-dual-motor-electric-height-adjustable-standing-desk',
+            desc: 'Scandinavian blonde oak look for bright, airy studios.',
+            badge: 'Trending',
           },
           {
             title: 'Matte Black Anti-Scratch',
-            href: '/collections/standing-desks',
-            desc: 'Modern stealth look with anti-fingerprint thermal laminate.',
+            href: '/products/kuber-d1-black',
+            desc: 'Stealth modern aesthetic with anti-fingerprint thermal laminate.',
           },
           {
-            title: 'Clean Arctic White',
-            href: '/collections/standing-desks',
-            desc: 'Minimalist Scandinavian look for bright, airy studios.',
+            title: 'Frosty White & Gothic Grey',
+            href: '/products/kuber-d1-frosty-white',
+            desc: 'Minimalist contemporary finishes built for focus and durability.',
           },
         ],
       },
     ],
     featured: {
-      badge: 'TOP CHOICE',
-      title: 'Dual-Motor Standing Desk',
-      desc: 'Engineered with 6-axis anti-collision gyro and whisper-quiet motors under 42dB.',
-      href: '/collections/standing-desks',
-      image: '/hero.png',
+      badge: 'FLAGSHIP',
+      title: 'Kuber Dual Motor Pro',
+      desc: 'Ultra-quiet dual motors (<42dB), 125kg loading, gyro anti-collision & 10-Year Warranty.',
+      href: '/products/kuber-d1-black',
+      image: 'https://cdn.shopify.com/s/files/1/0748/4771/5577/files/Best_standing_desk_wooden_table_9158186c-4d9d-4a00-ba58-4e891278df0c.webp',
     },
   },
   yogeek: {
     sections: [
       {
-        heading: 'Ergonomic Seating',
+        heading: 'Floor Sitting to Standing',
         items: [
           {
-            title: 'Yogeek High-Back Mesh',
-            href: '/collections/ergonomic-chairs',
-            desc: 'Adaptive lumbar support with breathable 3D mesh fabric.',
-            badge: 'Popular',
+            title: 'Yogeek YG1 Dual-Motor Series',
+            href: '/products/yogeek-yg1-black',
+            desc: 'Revolutionary 490mm to 1150mm range for floor sitting & standing.',
+            badge: 'Unique',
           },
           {
-            title: 'Executive Leather Recliner',
-            href: '/collections/ergonomic-chairs',
-            desc: 'Supple PU leather with 135° recline and extendable footrest.',
+            title: 'Yogeek Luxe Sit-to-Stand',
+            href: '/products/yogeek-sit-to-stand-adjustable-desk',
+            desc: 'Designed for grounded posture, cross-legged work, and yoga setups.',
+            badge: 'New Launch',
           },
           {
-            title: 'Active Perching Stool',
-            href: '/collections/ergonomic-chairs',
-            desc: 'Encourages core engagement and sit-stand transitions.',
-            badge: 'Health',
+            title: 'Yogeek Dark Maple & Ice Beach',
+            href: '/products/yogeek-yg1-dark-mapple',
+            desc: 'Solid wood textured tabletop with synchronized dual drives.',
+          },
+          {
+            title: 'All Yogeek Models',
+            href: '/collections/yogeek-desks',
+            desc: 'Explore ultra-low range motorized desks.',
           },
         ],
       },
       {
-        heading: 'Posture Engineering',
+        heading: 'Postural Health Benefits',
         items: [
           {
-            title: '4D Multi-Directional Arms',
-            href: '/collections/ergonomic-chairs',
-            desc: 'Height, depth, width, and angle adjustable armrests.',
+            title: 'Floor Sitting to Standing',
+            href: '/collections/yogeek-desks',
+            desc: 'Switch seamlessly between cross-legged floor focus and active standing.',
           },
           {
-            title: 'Dynamic Synchro-Tilt',
-            href: '/collections/ergonomic-chairs',
-            desc: 'Smooth 2:1 backrest-to-seat tilt ratio for spinal decompression.',
+            title: '49cm Ultra-Low Starting Height',
+            href: '/collections/yogeek-desks',
+            desc: 'Go lower than any standard standing desk on the market.',
           },
           {
-            title: 'Class-4 Heavy Duty Gas Lift',
-            href: '/collections/ergonomic-chairs',
-            desc: 'BIFMA-certified pneumatic cylinder tested for 150kg.',
+            title: 'Anti-Collision & 4 Presets',
+            href: '/collections/yogeek-desks',
+            desc: 'Smart LED controller with obstacle detection and digital height display.',
           },
         ],
       },
     ],
     featured: {
-      badge: 'NEW LAUNCH',
-      title: 'Yogeek Ergonomic Studio Chair',
-      desc: 'Self-adjusting dynamic lumbar curve for uninterrupted 10+ hour focus sessions.',
-      href: '/collections/ergonomic-chairs',
-      image: '/hero.png',
+      badge: 'REVOLUTIONARY',
+      title: 'Yogeek Floor Sit-to-Stand',
+      desc: 'World-class ultra-low 49cm floor sitting to full standing height motorized range.',
+      href: '/products/yogeek-yg1-black',
+      image: 'https://cdn.shopify.com/s/files/1/0748/4771/5577/files/YG_1.png',
+    },
+  },
+  'table-tops': {
+    sections: [
+      {
+        heading: 'Premium Engineered Tops',
+        items: [
+          {
+            title: 'Dark Maple Table Top',
+            href: '/products/table-top-premium-engineered-wood-1600-x-750-mm-dark-mapple',
+            desc: '25mm heavy-duty core with rich executive dark maple texture.',
+            badge: 'Popular',
+          },
+          {
+            title: 'Ice Beach Table Top',
+            href: '/products/table-top-premium-engineered-wood-1600-x-750-mm-ice-beach',
+            desc: 'Warm natural wood finish with beveled ergonomic edges.',
+          },
+          {
+            title: 'Stealth Matte Black Top',
+            href: '/products/table-top-premium-engineered-wood-1600-x-750-mm-black',
+            desc: 'Anti-scratch and waterproof matte black laminate.',
+            badge: 'Classic',
+          },
+          {
+            title: 'Gothic Grey & Frosty White',
+            href: '/products/table-top-premium-engineered-wood-1600-x-750-mm-gothic-grey',
+            desc: 'High-density clean finishes crafted for all workspace aesthetics.',
+          },
+        ],
+      },
+      {
+        heading: 'Available Dimensions',
+        items: [
+          {
+            title: '1200mm × 600mm (Compact)',
+            href: '/collections/table-tops',
+            desc: 'Ideal for bedroom workspaces and compact home office setups.',
+          },
+          {
+            title: '1600mm × 700mm (Standard)',
+            href: '/collections/table-tops',
+            desc: 'Balanced workspace surface for dual monitor setups.',
+          },
+          {
+            title: '1600mm × 750mm (Executive Depth)',
+            href: '/collections/table-tops',
+            desc: 'Maximum surface depth for heavy monitor mounts and audio gear.',
+          },
+        ],
+      },
+    ],
+    featured: {
+      badge: 'CUSTOM TOPS',
+      title: '25mm Engineered Wood',
+      desc: 'High-density pre-drilled tabletop surfaces crafted for extreme durability and beauty.',
+      href: '/collections/table-tops',
+      image: 'https://cdn.shopify.com/s/files/1/0748/4771/5577/files/IceBeach.jpg',
     },
   },
   accessories: {
     sections: [
       {
-        heading: 'Workspace Organization',
+        heading: 'Cable & Gear Management',
         items: [
           {
-            title: 'Heavy-Duty Monitor Arms',
-            href: '/collections/desk-accessories',
-            desc: 'Gas-spring counterbalanced arms for single & dual 34" displays.',
+            title: 'Under-Desk Cable Tray',
+            href: '/products/under-desk-cable-management-tray',
+            desc: 'Heavy-duty wire mesh organizer in White, Black, and Grey.',
+            badge: 'Must Have',
+          },
+          {
+            title: 'Lockable Caster Wheels',
+            href: '/products/lockable-caster-wheels-for-standing-desk-furniture-fittrock',
+            desc: 'Smooth-rolling 360° lockable rubber casters for mobile desk setups.',
             badge: 'Essential',
           },
           {
-            title: 'Under-Desk Cable Spine',
-            href: '/collections/desk-accessories',
-            desc: 'Magnetic channels and steel raceways for zero visible wires.',
-          },
-          {
-            title: 'Clamp-On Power Modules',
-            href: '/collections/desk-accessories',
-            desc: 'Fast 65W GaN USB-C and AC surge outlets right at desk level.',
+            title: 'Dynamic Gas Spring Monitor Arm',
+            href: '/products/fittrock-dynamic-monitor-stand',
+            desc: 'Full-motion 360° counterbalanced single & dual screen mount.',
           },
         ],
       },
       {
-        heading: 'Comfort & Wellness',
+        heading: 'Workspace Organization',
         items: [
           {
-            title: 'Anti-Fatigue Standing Mat',
+            title: 'All Desk Accessories',
             href: '/collections/desk-accessories',
-            desc: 'High-density memory foam to relieve knee and ankle pressure.',
+            desc: 'Keep power strips, wires, and workspace essentials organized.',
           },
           {
-            title: 'Felt Desk Pad & Mouse Mat',
-            href: '/collections/desk-accessories',
-            desc: 'Water-repellent vegan leather and soft wool felt surface.',
+            title: 'Monitor Arms & Mounts',
+            href: '/collections/monitor-stands',
+            desc: 'Ergonomic screen elevation to prevent neck and eye strain.',
           },
           {
-            title: 'Under-Desk CPU Mount',
-            href: '/collections/desk-accessories',
-            desc: 'Heavy-duty steel strap mount that travels up/down with the desk.',
+            title: 'Standing Desk Frames Only',
+            href: '/collections/desk-frames',
+            desc: 'Build your own custom DIY workstation.',
           },
         ],
       },
     ],
     featured: {
-      badge: 'SETUP UPGRADE',
-      title: 'Zero-Wire Cable Management Kit',
-      desc: 'Complete power bar, steel mesh raceway, and magnetic cable organizer set.',
-      href: '/collections/desk-accessories',
-      image: '/hero.png',
+      badge: 'BEST VALUE',
+      title: 'Under-Desk Cable Organizer',
+      desc: 'Zero dangling wires. Heavy-duty steel mesh tray that mounts easily beneath any desk.',
+      href: '/products/under-desk-cable-management-tray',
+      image: 'https://cdn.shopify.com/s/files/1/0748/4771/5577/files/1White1.jpg',
     },
   },
 };
@@ -263,10 +330,11 @@ export function Header() {
 
   const navLinks = [
     { href: '/', label: 'Home', key: 'home' },
-    { href: '/collections/standing-desks', label: 'Adjustable Desk', key: 'adjustable-desk' },
-    { href: '/collections/ergonomic-chairs', label: 'Yogeek', key: 'yogeek' },
+    { href: '/collections/standing-desks', label: 'Standing Desks', key: 'adjustable-desk' },
+    { href: '/collections/yogeek-desks', label: 'Yogeek', key: 'yogeek' },
+    { href: '/collections/table-tops', label: 'Table Tops', key: 'table-tops' },
     { href: '/collections/desk-accessories', label: 'Accessories', key: 'accessories' },
-    { href: '/contact', label: 'Contact', key: 'contact' },
+    { href: '/testimonials', label: 'Reviews', key: 'reviews' },
     { href: '/blog', label: 'Blog', key: 'blog' },
   ];
 
@@ -315,9 +383,14 @@ export function Header() {
 
             {/* Center: Brand Logo */}
             <Link href="/" className="flex items-center justify-center py-1">
-              <span className="text-2xl font-black tracking-tight font-sans text-white">
-                Fittrock
-              </span>
+              <Image
+                src="/wordart-logo-white-color.svg"
+                alt="Fittrock"
+                width={125}
+                height={40}
+                className="h-7 sm:h-8 w-auto object-contain"
+                priority
+              />
             </Link>
 
             {/* Right: User + Cart */}
@@ -353,10 +426,15 @@ export function Header() {
           <div className="hidden md:flex items-center justify-between w-full gap-6">
             {/* Left: Brand Logo + Desktop Nav Links */}
             <div className="flex items-center gap-6 lg:gap-10">
-              <Link href="/" className="flex items-center gap-1 group py-2 shrink-0">
-                <span className="text-2xl sm:text-3xl font-black tracking-tight font-sans text-white drop-shadow-sm">
-                  Fittrock
-                </span>
+              <Link href="/" className="flex items-center group py-2 shrink-0">
+                <Image
+                  src="/wordart-logo-white-color.svg"
+                  alt="Fittrock Ergonomics"
+                  width={150}
+                  height={48}
+                  className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105"
+                  priority
+                />
               </Link>
 
               <nav className="flex items-center gap-5 lg:gap-8 text-sm font-normal text-white/90">
@@ -540,7 +618,7 @@ export function Header() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search standing desks, ergonomic chairs, accessories..."
+                placeholder="Search standing desks, table tops, yogeek, accessories..."
                 autoFocus
                 className="w-full bg-transparent text-white placeholder:text-white/50 text-sm sm:text-base focus:outline-none"
               />

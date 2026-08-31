@@ -12,6 +12,7 @@ import { YouTubeSection } from '@/components/storefront/YouTubeSection';
 import { GoogleReviewsTrustSection } from '@/components/storefront/GoogleReviewsTrustSection';
 import { FAQAccordion } from '@/components/storefront/FAQAccordion';
 import { LandscapeVideoShowcase } from '@/components/storefront/LandscapeVideoShowcase';
+import { NewsletterSection } from '@/components/storefront/NewsletterSection';
 import { apiFetch } from '@/lib/api-client';
 import { Metadata } from 'next';
 
@@ -81,6 +82,9 @@ export default async function HomePage() {
 
       {/* 13. Featured Landscape Video Showcase (Below FAQ) */}
       <LandscapeVideoShowcase />
+
+      {/* 14. Newsletter Subscription (Connected to Supabase DB) */}
+      <NewsletterSection />
     </div>
   );
 }

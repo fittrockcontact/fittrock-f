@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, MessageCircle, ExternalLink, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageCircle, ExternalLink, Clock, ShieldCheck, CheckCircle2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { apiFetch } from '@/lib/api-client';
 
 function YouTubeIcon({ className }: { className?: string }) {
   return (
@@ -39,13 +40,41 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 export default function ContactPage() {
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    toast.success('Thank you! Our ergonomic support team in Pune will get in touch shortly.');
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      toast.error('Please fill in all required fields.');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await apiFetch<{ success: boolean; message: string }>('/api/contact', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          message: formData.message.trim(),
+        }),
+      });
+
+      if (res?.success) {
+        setSubmitted(true);
+        toast.success(res.message || 'Thank you! Our ergonomic support team in Pune will get in touch shortly.');
+      } else {
+        toast.error('Could not submit inquiry. Please try again or WhatsApp us directly.');
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to submit contact inquiry';
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -236,10 +265,20 @@ export default function ContactPage() {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#a32222] hover:bg-[#851622] text-white font-extrabold py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-98"
+                  disabled={submitting}
+                  className="w-full bg-[#a32222] hover:bg-[#851622] disabled:opacity-50 text-white font-extrabold py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-98"
                 >
-                  <Send className="w-4 h-4" />
-                  <span>Submit Inquiry</span>
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Sending Inquiry...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>Submit Inquiry</span>
+                    </>
+                  )}
                 </button>
               </form>
             )}

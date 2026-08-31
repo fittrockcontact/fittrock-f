@@ -14,6 +14,13 @@ export interface ProductDetailProps {
     name: string;
     slug: string;
     description: string | null;
+    shortDescription?: string | null;
+    descriptionText?: string | null;
+    brand?: string | null;
+    weightCapacityKg?: number | string | null;
+    heightRangeMm?: string | null;
+    warrantyMonths?: number | string | null;
+    motorType?: string | null;
     basePrice: string;
     compareAtPrice: string | null;
     imageUrl?: string;
@@ -75,8 +82,8 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
 
-  // Accordion state
-  const [openSection, setOpenSection] = useState<'specs' | 'shipping' | 'warranty' | null>('specs');
+  // Accordion state (Right sidebar)
+  const [openSection, setOpenSection] = useState<'shipping' | 'warranty' | null>(null);
 
   const addItem = useCartStore((s) => s.addItem);
 
@@ -231,6 +238,25 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
   const displayFeatures: FeatureShowcaseItem[] =
     selectedVariantFeatures.length > 0 ? selectedVariantFeatures : imageMatchedFeatures;
 
+  const heroSummary =
+    product.shortDescription ||
+    product.descriptionText ||
+    (product.description
+      ? product.description
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/\s+/g, ' ')
+          .trim()
+      : '') ||
+    'Premium ergonomic height-adjustable workstation designed for superior posture comfort, stability, and durability.';
+
   return (
     <div className="py-12 bg-white text-zinc-900 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -310,6 +336,85 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
                 )}
               </div>
             </div>
+
+            {/* 1. Technical Specifications Section (Below Image) */}
+            <div className="mt-10 pt-8 border-t border-zinc-200 space-y-5">
+              <div className="flex items-center gap-2.5">
+                <span className="h-5 w-1.5 bg-amber-500 rounded-full" />
+                <h2 className="text-xl font-black text-zinc-900 tracking-tight">Technical Specifications</h2>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 space-y-1">
+                  <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Motor Drive System</p>
+                  <p className="text-sm font-bold text-zinc-900">
+                    {product.motorType === 'single'
+                      ? 'Single Motor Electric Lift (<42dB)'
+                      : product.motorType === 'dual'
+                      ? 'Dual-Motor Synchronized Lift (<42dB)'
+                      : 'Ergonomic Desk Component'}
+                  </p>
+                  <p className="text-xs text-zinc-500">Ultra-quiet, smooth motorized height transition</p>
+                </div>
+
+                <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 space-y-1">
+                  <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Load & Weight Capacity</p>
+                  <p className="text-sm font-bold text-zinc-900">
+                    {product.weightCapacityKg ? `${product.weightCapacityKg} kg` : (product.motorType === 'single' ? '100 kg' : '125 kg')} Maximum Load
+                  </p>
+                  <p className="text-xs text-zinc-500">Engineered for heavy multi-monitor workstations</p>
+                </div>
+
+                <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 space-y-1">
+                  <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Height Adjustment Range</p>
+                  <p className="text-sm font-bold text-zinc-900">
+                    {product.heightRangeMm || (product.motorType === 'single' ? '710mm - 1190mm' : '620mm - 1270mm')}
+                  </p>
+                  <p className="text-xs text-zinc-500">4 Memory height presets with LED digital readout</p>
+                </div>
+
+                <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 space-y-1">
+                  <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Frame Material & Build</p>
+                  <p className="text-sm font-bold text-zinc-900">Cold-Rolled Carbon Steel</p>
+                  <p className="text-xs text-zinc-500">Anti-scratch powder-coated dual-beam base</p>
+                </div>
+
+                <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 space-y-1">
+                  <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Safety & Anti-Collision</p>
+                  <p className="text-sm font-bold text-zinc-900">6-Axis Gyro Sensor</p>
+                  <p className="text-xs text-zinc-500">Auto-reverses immediately upon obstacle contact</p>
+                </div>
+
+                <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 space-y-1">
+                  <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Warranty & Support</p>
+                  <p className="text-sm font-bold text-zinc-900">
+                    {product.warrantyMonths ? `${Math.round(Number(product.warrantyMonths) / 12)} Years Warranty` : '10-Year Warranty'}
+                  </p>
+                  <p className="text-xs text-zinc-500">Comprehensive coverage on frame structure & motors</p>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Product Overview & Details Section (Below Technical Specifications) */}
+            <div className="mt-10 pt-8 border-t border-zinc-200 space-y-5">
+              <div className="flex items-center gap-2.5">
+                <span className="h-5 w-1.5 bg-amber-500 rounded-full" />
+                <h2 className="text-xl font-black text-zinc-900 tracking-tight">Product Overview & Details</h2>
+              </div>
+
+              <div className="bg-zinc-50/70 border border-zinc-200/80 rounded-3xl p-6 sm:p-8 space-y-4">
+                {product.description && product.description.includes('<') ? (
+                  <div
+                    className="prose prose-zinc max-w-none text-sm text-zinc-700 leading-relaxed space-y-4 [&>h2]:text-lg [&>h2]:font-bold [&>h2]:text-zinc-900 [&>h2]:mt-6 [&>h2]:mb-3 [&>h3]:text-base [&>h3]:font-bold [&>h3]:text-zinc-900 [&>h3]:mt-5 [&>h3]:mb-2 [&>p]:leading-relaxed [&>p]:text-zinc-600 [&>ul]:list-disc [&>ul]:pl-5 [&>ul>li]:mb-1.5 [&>ul>li]:text-zinc-600"
+                    dangerouslySetInnerHTML={{ __html: product.description }}
+                  />
+                ) : (
+                  <p className="text-sm text-zinc-700 leading-relaxed whitespace-pre-line">
+                    {product.description || heroSummary}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Right Column: Product Details & Variant Selectors */}
@@ -327,7 +432,7 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
               <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-zinc-900">
                 {product.name}
               </h1>
-              <p className="text-zinc-600 text-sm leading-relaxed">{product.description}</p>
+              <p className="text-zinc-600 text-sm leading-relaxed">{heroSummary}</p>
             </div>
 
             {/* Price Display */}
@@ -461,26 +566,7 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
 
             {/* Collapsible Product Details Accordion */}
             <div className="border border-zinc-200 rounded-2xl overflow-hidden divide-y divide-zinc-200">
-              {/* Section 1: Specs */}
-              <div>
-                <button
-                  onClick={() => setOpenSection(openSection === 'specs' ? null : 'specs')}
-                  className="w-full px-5 py-4 flex items-center justify-between font-bold text-sm text-zinc-900 bg-zinc-50 hover:bg-zinc-100 transition-colors"
-                >
-                  <span>Technical Specifications</span>
-                  <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${openSection === 'specs' ? 'rotate-180' : ''}`} />
-                </button>
-                {openSection === 'specs' && (
-                  <div className="px-5 py-4 text-xs text-zinc-600 space-y-2 bg-white">
-                    <p>• Motor: Dual-motor electric drive with silent noise dampening (&lt; 42dB)</p>
-                    <p>• Lift Capacity: 125 kg heavy-duty steel frame loading</p>
-                    <p>• Height Range: 65cm to 130cm with 4 programmable memory presets</p>
-                    <p>• Safety: 6-axis Gyro anti-collision auto-reversal system</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Section 2: Shipping */}
+              {/* Section 1: Shipping */}
               <div>
                 <button
                   onClick={() => setOpenSection(openSection === 'shipping' ? null : 'shipping')}
@@ -496,7 +582,7 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
                 )}
               </div>
 
-              {/* Section 3: Warranty */}
+              {/* Section 2: Warranty */}
               <div>
                 <button
                   onClick={() => setOpenSection(openSection === 'warranty' ? null : 'warranty')}

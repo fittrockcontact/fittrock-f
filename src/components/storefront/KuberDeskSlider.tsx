@@ -75,7 +75,7 @@ export function KuberDeskSlider({ dbProducts = [] }: Props) {
         </div>
 
         {/* Carousel / Slider Container */}
-        <div className="relative group">
+        <div className="relative group/slider">
           {/* Slider Items Row with Larger Cards */}
           <div
             ref={sliderRef}
@@ -96,7 +96,7 @@ export function KuberDeskSlider({ dbProducts = [] }: Props) {
           <button
             onClick={() => scroll('left')}
             aria-label="Previous products"
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 sm:-translate-x-5 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/95 text-zinc-900 border border-zinc-200 shadow-2xl flex items-center justify-center hover:bg-white hover:scale-110 active:scale-95 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 z-20"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 sm:-translate-x-5 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/95 text-zinc-900 border border-zinc-200 shadow-2xl flex items-center justify-center hover:bg-white hover:scale-110 active:scale-95 transition-all opacity-0 group-hover/slider:opacity-100 focus:opacity-100 z-20"
           >
             <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
           </button>

@@ -87,7 +87,7 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
 
   return (
     <div
-      className={`group relative bg-white border border-zinc-200/90 rounded-2xl overflow-hidden flex flex-col justify-between shadow-md hover:shadow-2xl transition-all duration-300 ${className}`}
+      className={`group/card relative bg-white border border-zinc-200/90 rounded-2xl overflow-hidden flex flex-col justify-between shadow-md hover:shadow-2xl transition-all duration-300 ${className}`}
     >
       <Link href={`/products/${product.slug}`} className="block">
         {/* Large Product Image Container with Sale watermark, Logo, and Quick Add */}
@@ -95,7 +95,7 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
           <img
             src={mainImage}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
           />
 
           {/* Top Left: Sale Tag */}

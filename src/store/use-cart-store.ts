@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { apiFetch } from '@/lib/api-client';
 
 export interface CartItem {
   variantId: string;
@@ -26,6 +27,8 @@ interface CartStore {
   items: CartItem[];
   appliedDiscount: AppliedDiscount | null;
   isCartOpen: boolean;
+  userEmail: string | null;
+  setUserEmail: (email: string | null) => void;
   addItem: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
   removeItem: (variantId: string) => void;
   updateQuantity: (variantId: string, quantity: number) => void;
@@ -33,11 +36,35 @@ interface CartStore {
   applyDiscount: (discount: AppliedDiscount) => { success: boolean; message: string };
   removeDiscount: () => void;
   setCartOpen: (open: boolean) => void;
+  syncWithCloud: (email: string) => Promise<void>;
+  pushToCloud: () => Promise<void>;
+  clearCloudCart: () => Promise<void>;
   getSubtotal: () => number;
   getDiscountAmount: () => number;
   getShippingAmount: () => number;
   getTotal: () => number;
 }
+
+let syncTimeout: NodeJS.Timeout | null = null;
+
+const debouncedCloudPush = (email: string, items: CartItem[], appliedDiscount: AppliedDiscount | null) => {
+  if (!email) return;
+  if (syncTimeout) clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(async () => {
+    try {
+      await apiFetch('/api/cart/sync', {
+        method: 'POST',
+        body: JSON.stringify({
+          email,
+          items,
+          appliedDiscount,
+        }),
+      });
+    } catch (err) {
+      console.warn('Background cloud cart sync notice:', err);
+    }
+  }, 600);
+};
 
 export const useCartStore = create<CartStore>()(
   persist(
@@ -45,6 +72,14 @@ export const useCartStore = create<CartStore>()(
       items: [],
       appliedDiscount: null,
       isCartOpen: false,
+      userEmail: null,
+
+      setUserEmail: (email) => {
+        set({ userEmail: email });
+        if (email) {
+          get().syncWithCloud(email);
+        }
+      },
 
       addItem: (newItem) => {
         const qtyToAdd = newItem.quantity || 1;
@@ -53,31 +88,38 @@ export const useCartStore = create<CartStore>()(
             (i) => i.variantId === newItem.variantId
           );
 
+          let updatedItems: CartItem[];
           if (existingIndex > -1) {
-            const updatedItems = [...state.items];
+            updatedItems = [...state.items];
             const currentItem = updatedItems[existingIndex];
             const newQty = Math.min(
               currentItem.quantity + qtyToAdd,
               currentItem.stockQuantity
             );
             updatedItems[existingIndex] = { ...currentItem, quantity: newQty };
-            return { items: updatedItems, isCartOpen: true };
-          }
-
-          return {
-            items: [
+          } else {
+            updatedItems = [
               ...state.items,
               { ...newItem, quantity: Math.min(qtyToAdd, newItem.stockQuantity) },
-            ],
-            isCartOpen: true,
-          };
+            ];
+          }
+
+          if (state.userEmail) {
+            debouncedCloudPush(state.userEmail, updatedItems, state.appliedDiscount);
+          }
+
+          return { items: updatedItems, isCartOpen: true };
         });
       },
 
       removeItem: (variantId) => {
-        set((state) => ({
-          items: state.items.filter((i) => i.variantId !== variantId),
-        }));
+        set((state) => {
+          const updatedItems = state.items.filter((i) => i.variantId !== variantId);
+          if (state.userEmail) {
+            debouncedCloudPush(state.userEmail, updatedItems, state.appliedDiscount);
+          }
+          return { items: updatedItems };
+        });
       },
 
       updateQuantity: (variantId, quantity) => {
@@ -86,19 +128,27 @@ export const useCartStore = create<CartStore>()(
           return;
         }
 
-        set((state) => ({
-          items: state.items.map((item) =>
+        set((state) => {
+          const updatedItems = state.items.map((item) =>
             item.variantId === variantId
               ? {
                   ...item,
                   quantity: Math.min(quantity, item.stockQuantity),
                 }
               : item
-          ),
-        }));
+          );
+          if (state.userEmail) {
+            debouncedCloudPush(state.userEmail, updatedItems, state.appliedDiscount);
+          }
+          return { items: updatedItems };
+        });
       },
 
       clearCart: () => {
+        const state = get();
+        if (state.userEmail) {
+          get().clearCloudCart();
+        }
         set({ items: [], appliedDiscount: null });
       },
 
@@ -110,16 +160,112 @@ export const useCartStore = create<CartStore>()(
             message: `Minimum order amount for code ${discount.code} is ₹${discount.minOrderAmount}`,
           };
         }
-        set({ appliedDiscount: discount });
+        set((state) => {
+          if (state.userEmail) {
+            debouncedCloudPush(state.userEmail, state.items, discount);
+          }
+          return { appliedDiscount: discount };
+        });
         return { success: true, message: `Coupon code ${discount.code} applied!` };
       },
 
       removeDiscount: () => {
-        set({ appliedDiscount: null });
+        set((state) => {
+          if (state.userEmail) {
+            debouncedCloudPush(state.userEmail, state.items, null);
+          }
+          return { appliedDiscount: null };
+        });
       },
 
       setCartOpen: (open) => {
         set({ isCartOpen: open });
+      },
+
+      syncWithCloud: async (email: string) => {
+        if (!email) return;
+        try {
+          const res = await apiFetch<{ items: CartItem[]; appliedDiscount: AppliedDiscount | null }>(
+            `/api/cart?email=${encodeURIComponent(email)}`
+          );
+
+          const localItems = get().items;
+          const cloudItems = res?.items || [];
+          const cloudDiscount = res?.appliedDiscount || null;
+
+          // Merge local items with cloud items
+          const mergedMap = new Map<string, CartItem>();
+
+          // Add cloud items first
+          for (const item of cloudItems) {
+            mergedMap.set(item.variantId, item);
+          }
+
+          // Merge or append local items
+          for (const localItem of localItems) {
+            if (mergedMap.has(localItem.variantId)) {
+              const existing = mergedMap.get(localItem.variantId)!;
+              mergedMap.set(localItem.variantId, {
+                ...existing,
+                quantity: Math.max(existing.quantity, localItem.quantity),
+              });
+            } else {
+              mergedMap.set(localItem.variantId, localItem);
+            }
+          }
+
+          const mergedItems = Array.from(mergedMap.values());
+          const finalDiscount = get().appliedDiscount || cloudDiscount;
+
+          set({
+            items: mergedItems,
+            appliedDiscount: finalDiscount,
+            userEmail: email,
+          });
+
+          // Sync back the merged cart to the database
+          if (mergedItems.length > 0) {
+            await apiFetch('/api/cart/sync', {
+              method: 'POST',
+              body: JSON.stringify({
+                email,
+                items: mergedItems,
+                appliedDiscount: finalDiscount,
+              }),
+            });
+          }
+        } catch (err) {
+          console.warn('Failed to sync cloud cart:', err);
+        }
+      },
+
+      pushToCloud: async () => {
+        const state = get();
+        if (!state.userEmail) return;
+        try {
+          await apiFetch('/api/cart/sync', {
+            method: 'POST',
+            body: JSON.stringify({
+              email: state.userEmail,
+              items: state.items,
+              appliedDiscount: state.appliedDiscount,
+            }),
+          });
+        } catch (err) {
+          console.warn('Manual push to cloud cart failed:', err);
+        }
+      },
+
+      clearCloudCart: async () => {
+        const state = get();
+        if (!state.userEmail) return;
+        try {
+          await apiFetch(`/api/cart?email=${encodeURIComponent(state.userEmail)}`, {
+            method: 'DELETE',
+          });
+        } catch (err) {
+          console.warn('Clear cloud cart failed:', err);
+        }
       },
 
       getSubtotal: () => {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Star, ChevronLeft, ChevronRight, Shield, Truck, Wrench, CreditCard, Lock, CheckCircle2 } from 'lucide-react';
+import { Star, ChevronLeft, ChevronRight, Lock, CheckCircle2 } from 'lucide-react';
 import { apiFetch } from '@/lib/api-client';
 
 function GoogleIcon({ className = 'w-4 h-4' }: { className?: string }) {
@@ -307,61 +307,6 @@ export function GoogleReviewsTrustSection() {
             {/* BHIM UPI */}
             <div className="flex items-center text-xs font-black italic tracking-tighter text-[#097939]">
               BHIM<span className="text-[#0072bc] ml-0.5">UPI</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ======================================================== */}
-        {/* 3. CRIMSON VALUE PROPS & WARRANTY BANNER                 */}
-        {/* ======================================================== */}
-        <div className="bg-gradient-to-r from-[#6b1018] via-[#8c1d27] to-[#6b1018] rounded-3xl p-4 sm:p-7 shadow-xl border border-red-900/40">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-            {/* 1. 3-Year Warranty */}
-            <div className="bg-white rounded-2xl p-4 sm:p-5 flex items-center gap-3 shadow-md">
-              <div className="p-2.5 bg-red-50 text-[#8c1d27] rounded-xl shrink-0">
-                <Shield className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
-              </div>
-              <div>
-                <h4 className="text-xs sm:text-sm md:text-base font-bold text-zinc-950 leading-tight">
-                  3-Year Warranty
-                </h4>
-              </div>
-            </div>
-
-            {/* 2. Free Delivery */}
-            <div className="bg-white rounded-2xl p-4 sm:p-5 flex items-center gap-3 shadow-md">
-              <div className="p-2.5 bg-red-50 text-[#8c1d27] rounded-xl shrink-0">
-                <Truck className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
-              </div>
-              <div>
-                <h4 className="text-xs sm:text-sm md:text-base font-bold text-zinc-950 leading-tight">
-                  Free Delivery
-                </h4>
-              </div>
-            </div>
-
-            {/* 3. (DIY) Installation Support */}
-            <div className="bg-white rounded-2xl p-4 sm:p-5 flex items-center gap-3 shadow-md">
-              <div className="p-2.5 bg-red-50 text-[#8c1d27] rounded-xl shrink-0">
-                <Wrench className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
-              </div>
-              <div>
-                <h4 className="text-xs sm:text-sm md:text-base font-bold text-zinc-950 leading-tight">
-                  (DIY) Installation Support
-                </h4>
-              </div>
-            </div>
-
-            {/* 4. No-cost EMI */}
-            <div className="bg-white rounded-2xl p-4 sm:p-5 flex items-center gap-3 shadow-md">
-              <div className="p-2.5 bg-red-50 text-[#8c1d27] rounded-xl shrink-0 flex items-center justify-center font-bold text-xs">
-                <span className="text-[#8c1d27] font-black text-xs">=0%</span>
-              </div>
-              <div>
-                <h4 className="text-xs sm:text-sm md:text-base font-bold text-zinc-950 leading-tight">
-                  No-cost EMI
-                </h4>
-              </div>
             </div>
           </div>
         </div>

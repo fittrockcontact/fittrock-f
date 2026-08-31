@@ -2,12 +2,13 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Mail, Phone, MapPin, ExternalLink } from 'lucide-react';
 
 function YouTubeIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
     </svg>
   );
 }
@@ -15,9 +16,9 @@ function YouTubeIcon({ className }: { className?: string }) {
 function InstagramIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
     </svg>
   );
 }
@@ -25,7 +26,7 @@ function InstagramIcon({ className }: { className?: string }) {
 function FacebookIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
     </svg>
   );
 }
@@ -40,19 +41,20 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 export function Footer() {
   return (
-    <footer className="bg-zinc-950 text-zinc-400 border-t border-zinc-800 pt-12 sm:pt-16 pb-8 sm:pb-12">
+    <footer className="bg-zinc-950 text-zinc-400 border-t border-zinc-800 pt-2 sm:pt-4 pb-2 sm:pb-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10">
-          
+
           {/* Col 1 & 2: Brand & Official Registered Office */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#a32222] flex items-center justify-center font-black text-white text-xl tracking-tighter shadow-md">
-                F
-              </div>
-              <span className="font-extrabold text-xl tracking-tight text-white">
-                FITT<span className="text-[#a32222]">ROCK</span>
-              </span>
+            <Link href="/" className="inline-flex items-center group">
+              <Image
+                src="/wordart-logo-white-color.svg"
+                alt="FITTROCK Ergonomics"
+                width={160}
+                height={50}
+                className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105"
+              />
             </Link>
 
             <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-md">
@@ -133,18 +135,18 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Col 3: Standing Desks & Products */}
+          {/* Col 3: Products & Gear */}
           <div className="space-y-3">
-            <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider">Ergonomic Gear</h4>
+            <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider">Products</h4>
             <ul className="space-y-2 text-xs sm:text-sm">
               <li>
                 <Link href="/collections/standing-desks" className="hover:text-white transition-colors py-0.5 block">
-                  KUBER Dual Motor Desks
+                  KUBER Dual Motor
                 </Link>
               </li>
               <li>
                 <Link href="/collections/standing-desks" className="hover:text-white transition-colors py-0.5 block">
-                  RATI Single Motor Desks
+                  RATI Single Motor
                 </Link>
               </li>
               <li>
@@ -154,29 +156,39 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/collections/desk-accessories" className="hover:text-white transition-colors py-0.5 block">
-                  Gas-Spring Monitor Arms
+                  Solid Wooden Tops
                 </Link>
               </li>
               <li>
                 <Link href="/collections/desk-accessories" className="hover:text-white transition-colors py-0.5 block">
-                  Heavy-Duty Cable Trays
+                  Gas-Spring Arms
+                </Link>
+              </li>
+              <li>
+                <Link href="/collections/desk-accessories" className="hover:text-white transition-colors py-0.5 block">
+                  Cable Management
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Col 4: Resources & Authors */}
+          {/* Col 4: Company Pages */}
           <div className="space-y-3">
-            <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider">Ergo Lab &amp; Team</h4>
+            <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider">Company</h4>
             <ul className="space-y-2 text-xs sm:text-sm">
               <li>
-                <Link href="/blog" className="hover:text-white transition-colors py-0.5 block">
-                  Ergo Lab Blog
+                <Link href="/about" className="hover:text-white transition-colors py-0.5 block">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-white transition-colors py-0.5 block">
+                  Experience Studio
                 </Link>
               </li>
               <li>
                 <Link href="/authors" className="hover:text-white transition-colors py-0.5 block">
-                  Meet Our Authors &amp; Experts
+                  Ergonomics Team
                 </Link>
               </li>
               <li>
@@ -185,61 +197,91 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="https://www.youtube.com/@FITTROCK" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors py-0.5 block">
-                  Video Tutorials &amp; Shorts
-                </a>
+                <Link href="/pricing-payments" className="hover:text-white transition-colors py-0.5 block">
+                  Payment Terms
+                </Link>
+              </li>
+              <li>
+                <Link href="/media-kit" className="hover:text-white transition-colors py-0.5 block">
+                  Media Kit &amp; Press
+                </Link>
               </li>
               <li>
                 <Link href="/contact" className="hover:text-white transition-colors py-0.5 block">
-                  Experience Center &amp; Contact
+                  Contact &amp; Support
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Col 5: Policies & Trust */}
+          {/* Col 5: Resources */}
           <div className="space-y-3">
-            <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider">Trust &amp; Policies</h4>
+            <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider">Resources</h4>
             <ul className="space-y-2 text-xs sm:text-sm">
               <li>
-                <Link href="/shipping" className="hover:text-white transition-colors py-0.5 block">
-                  Free Shipping Policy
+                <Link href="/faq" className="hover:text-white transition-colors py-0.5 block">
+                  Help Center &amp; FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/refund" className="hover:text-white transition-colors py-0.5 block">
-                  30-Day Guarantee &amp; Returns
+                <Link href="/blog" className="hover:text-white transition-colors py-0.5 block">
+                  Ergo Lab Blog
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="hover:text-white transition-colors py-0.5 block">
-                  3-Year Warranty Terms
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy" className="hover:text-white transition-colors py-0.5 block">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <a href="https://maps.app.goo.gl/cNpEwygy4a8zYUNj6" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors py-0.5 block flex items-center gap-1">
-                  <span>Pune Office on Google Maps</span>
-                  <ExternalLink className="w-3 h-3 text-zinc-500" />
+                <a href="https://www.youtube.com/@FITTROCK" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors py-0.5 block">
+                  Video Guides &amp; Demos
                 </a>
+              </li>
+              <li>
+                <Link href="/account" className="hover:text-white transition-colors py-0.5 block">
+                  Customer Account
+                </Link>
+              </li>
+              <li>
+                <Link href="/shipping" className="hover:text-white transition-colors py-0.5 block">
+                  Track Delivery SLA
+                </Link>
+              </li>
+              <li>
+                <Link href="/disclaimer" className="hover:text-white transition-colors py-0.5 block">
+                  Posture &amp; Safety
+                </Link>
               </li>
             </ul>
           </div>
 
         </div>
 
+        {/* Legal Secondary Navigation Bar */}
+        <div className="border-t border-zinc-900 pt-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-zinc-400">
+          <Link href="/warranty" className="hover:text-zinc-200 transition-colors">Warranty Policy</Link>
+          <span>•</span>
+          <Link href="/refund" className="hover:text-zinc-200 transition-colors">Refund &amp; Cancellation</Link>
+          <span>•</span>
+          <Link href="/returns" className="hover:text-zinc-200 transition-colors">Return &amp; Exchange</Link>
+          <span>•</span>
+          <Link href="/shipping" className="hover:text-zinc-200 transition-colors">Shipping &amp; Delivery</Link>
+          <span>•</span>
+          <Link href="/terms" className="hover:text-zinc-200 transition-colors">Terms of Service</Link>
+          <span>•</span>
+          <Link href="/privacy" className="hover:text-zinc-200 transition-colors">Privacy Policy</Link>
+          <span>•</span>
+          <Link href="/cookies" className="hover:text-zinc-200 transition-colors">Cookie Policy</Link>
+          <span>•</span>
+          <Link href="/disclaimer" className="hover:text-zinc-200 transition-colors">Disclaimer</Link>
+          <span>•</span>
+          <Link href="/accessibility" className="hover:text-zinc-200 transition-colors">Accessibility</Link>
+          <span>•</span>
+          <Link href="/pricing-payments" className="hover:text-zinc-200 transition-colors">Payment Terms</Link>
+          <span>•</span>
+          <Link href="/grievance-redressal" className="hover:text-zinc-200 transition-colors">Grievance Desk</Link>
+        </div>
+
         {/* Bottom Bar with LLP & Copyright */}
-        <div className="border-t border-zinc-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500 text-center sm:text-left">
-          <p>© {new Date().getFullYear()} <strong className="text-zinc-300">FITTROCK ERGONOMICS LLP</strong>. All rights reserved.</p>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-zinc-400">
-            <span>Website: <strong className="text-zinc-200">https://fittrock.com</strong></span>
-            <span>•</span>
-            <span>Pune, Maharashtra, India</span>
-          </div>
+        <div className="border-t border-zinc-900 pt-1 flex flex-col items-center justify-center gap-2 text-xs text-zinc-500 text-center">
+          <p>© {new Date().getFullYear()} <strong className="text-zinc-300 font-medium">FITTROCK ERGONOMICS LLP</strong>. All rights reserved.</p>
+          <p className="text-[11px] text-zinc-600">Compliant with Consumer Protection (E-Commerce) Rules, 2020 &amp; Information Technology Act, 2000.</p>
         </div>
       </div>
     </footer>
