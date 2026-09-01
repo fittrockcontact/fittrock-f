@@ -8,6 +8,7 @@ export function getApiUrl(path: string): string {
 export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const url = getApiUrl(path);
   const res = await fetch(url, {
+    cache: 'no-store',
     ...options,
     headers: {
       'Content-Type': 'application/json',
