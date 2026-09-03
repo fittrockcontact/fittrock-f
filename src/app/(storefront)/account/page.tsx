@@ -20,11 +20,13 @@ import {
   ShoppingBag,
   Truck,
   Download,
+  Search,
 } from 'lucide-react';
 import { useAuth } from '@/lib/firebase/auth-context';
 import { formatPrice } from '@/lib/utils';
 import { toast } from 'sonner';
 import { apiFetch } from '@/lib/api-client';
+import { CustomerOrderCard } from '@/components/storefront/CustomerOrderCard';
 
 export default function AccountPage() {
   const {
@@ -47,6 +49,8 @@ export default function AccountPage() {
   // Customer Profile & Orders State from Database
   const [profile, setProfile] = useState<any>(null);
   const [ordersList, setOrdersList] = useState<any[]>([]);
+  const [orderFilter, setOrderFilter] = useState<'all' | 'active' | 'delivered'>('all');
+  const [orderSearch, setOrderSearch] = useState('');
   const [loadingData, setLoadingData] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
 
@@ -564,17 +568,64 @@ export default function AccountPage() {
 
           {/* Right Column: Order History from Supabase Database */}
           <div className="lg:col-span-7 space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h2 className="text-xl font-bold flex items-center gap-2 text-zinc-900">
                 <Package className="w-5 h-5 text-[#a32222]" />
-                <span>Your Order History</span>
+                <span>Your Order History &amp; Tracking</span>
               </h2>
               {ordersList.length > 0 && (
-                <span className="text-xs text-zinc-500 font-medium">
-                  {ordersList.length} {ordersList.length === 1 ? 'Order' : 'Orders'}
+                <span className="text-xs text-zinc-500 font-semibold bg-zinc-100 px-3 py-1 rounded-full border border-zinc-200">
+                  {ordersList.length} {ordersList.length === 1 ? 'Order Placed' : 'Orders Placed'}
                 </span>
               )}
             </div>
+
+            {/* Filters & Search when orders exist */}
+            {ordersList.length > 0 && (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-zinc-50 border border-zinc-200 rounded-2xl">
+                <div className="flex items-center gap-1.5 p-1 bg-zinc-200/70 rounded-xl">
+                  {[
+                    { id: 'all', label: `All (${ordersList.length})` },
+                    {
+                      id: 'active',
+                      label: `Active (${
+                        ordersList.filter((o) => !['delivered', 'cancelled'].includes(o.status)).length
+                      })`,
+                    },
+                    {
+                      id: 'delivered',
+                      label: `Delivered (${
+                        ordersList.filter((o) => o.status === 'delivered').length
+                      })`,
+                    },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setOrderFilter(tab.id as any)}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        orderFilter === tab.id
+                          ? 'bg-white text-zinc-950 shadow-xs'
+                          : 'text-zinc-600 hover:text-zinc-900'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="relative min-w-[200px]">
+                  <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-3 top-2.5" />
+                  <input
+                    type="text"
+                    placeholder="Search by order #..."
+                    value={orderSearch}
+                    onChange={(e) => setOrderSearch(e.target.value)}
+                    className="w-full bg-white border border-zinc-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-[#a32222]"
+                  />
+                </div>
+              </div>
+            )}
 
             {loadingData ? (
               <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-12 text-center">
@@ -586,7 +637,7 @@ export default function AccountPage() {
                 <ShoppingBag className="w-10 h-10 text-zinc-400 mx-auto" />
                 <h3 className="text-sm font-bold text-zinc-800">No Orders Yet</h3>
                 <p className="text-xs text-zinc-500 max-w-sm mx-auto">
-                  When you place an order on Fittrock, your tracking ID, GST invoice, and warranty status will appear here.
+                  When you place an order on Fittrock, your tracking ID, courier dispatch status, and GST invoice will appear here.
                 </p>
                 <div className="pt-2">
                   <Link
@@ -599,90 +650,60 @@ export default function AccountPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {ordersList.map((ord) => (
-                  <div
-                    key={ord.id}
-                    className="bg-zinc-50 border border-zinc-200 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm"
-                  >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2.5">
-                        <span className="font-mono font-bold text-xs sm:text-sm text-zinc-900">
-                          {ord.order_number || `#${ord.id?.slice(0, 8)}`}
-                        </span>
-                        <span
-                          className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase ${
-                            ord.status === 'completed' || ord.status === 'paid'
-                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                              : ord.status === 'shipped'
-                              ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                              : 'bg-amber-100 text-amber-800 border border-amber-200'
-                          }`}
-                        >
-                          {ord.status || 'Processing'}
-                        </span>
-                      </div>
+                {ordersList
+                  .filter((ord) => {
+                    if (orderFilter === 'active') {
+                      if (['delivered', 'cancelled'].includes(ord.status)) return false;
+                    }
+                    if (orderFilter === 'delivered') {
+                      if (ord.status !== 'delivered') return false;
+                    }
+                    if (orderSearch.trim()) {
+                      const q = orderSearch.trim().toLowerCase();
+                      const num = (ord.order_number || ord.id || '').toLowerCase();
+                      const itemMatch = (ord.items || []).some((it: any) =>
+                        (it.product_title || '').toLowerCase().includes(q)
+                      );
+                      if (!num.includes(q) && !itemMatch) return false;
+                    }
+                    return true;
+                  })
+                  .map((ord) => (
+                    <CustomerOrderCard key={ord.id} order={ord} />
+                  ))}
 
-                      {/* Items */}
-                      {ord.items && ord.items.length > 0 ? (
-                        <div className="space-y-0.5">
-                          {ord.items.map((item: any) => (
-                            <p key={item.id} className="text-xs text-zinc-700 font-medium">
-                              {item.product_title} {item.variant_title ? `(${item.variant_title})` : ''} × {item.quantity}
-                            </p>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-zinc-600">Fittrock Ergonomics Order</p>
-                      )}
-
-                      <p className="text-[11px] text-zinc-400">
-                        Placed on {ord.placed_at ? new Date(ord.placed_at).toLocaleDateString('en-IN') : 'Recent'}
-                      </p>
-
-                      {ord.shipments && ord.shipments.length > 0 && ord.shipments[0].tracking_number && (
-                        <div className="flex items-center gap-1.5 text-xs text-zinc-800 bg-blue-50 border border-blue-200/80 px-2.5 py-1.5 rounded-lg w-fit mt-1">
-                          <Truck className="w-3.5 h-3.5 text-blue-600" />
-                          <span>
-                            {ord.shipments[0].carrier_name || 'Courier'}:{' '}
-                            <strong className="font-mono text-zinc-950 font-bold">{ord.shipments[0].tracking_number}</strong>
-                          </span>
-                          {ord.shipments[0].tracking_url && (
-                            <a
-                              href={ord.shipments[0].tracking_url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-blue-600 hover:text-blue-800 hover:underline font-bold ml-1"
-                            >
-                              Track Live →
-                            </a>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-zinc-200">
-                      <div className="text-base sm:text-lg font-black text-zinc-950">
-                        {formatPrice(ord.total_amount || 0)}
-                      </div>
-                      <div className="text-[11px] text-emerald-700 font-medium flex items-center sm:justify-end gap-1">
-                        <CheckCircle2 className="w-3 h-3" />
-                        <span>Free Express Shipping Included</span>
-                      </div>
-
-                      <div className="pt-2 sm:pt-2 flex sm:justify-end">
-                        <a
-                          href={`/api/checkout/orders/${ord.order_number || ord.id}/invoice`}
-                          download
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-800 text-xs font-bold transition-colors"
-                          title="Download GST Tax Invoice PDF"
-                        >
-                          <Download className="w-3.5 h-3.5 text-zinc-600" />
-                          <span>Invoice (PDF)</span>
-                        </a>
-                      </div>
-                    </div>
+                {ordersList.filter((ord) => {
+                  if (orderFilter === 'active') {
+                    if (['delivered', 'cancelled'].includes(ord.status)) return false;
+                  }
+                  if (orderFilter === 'delivered') {
+                    if (ord.status !== 'delivered') return false;
+                  }
+                  if (orderSearch.trim()) {
+                    const q = orderSearch.trim().toLowerCase();
+                    const num = (ord.order_number || ord.id || '').toLowerCase();
+                    const itemMatch = (ord.items || []).some((it: any) =>
+                      (it.product_title || '').toLowerCase().includes(q)
+                    );
+                    if (!num.includes(q) && !itemMatch) return false;
+                  }
+                  return true;
+                }).length === 0 && (
+                  <div className="p-8 text-center border border-dashed border-zinc-200 rounded-2xl bg-zinc-50">
+                    <p className="text-xs text-zinc-500">
+                      No orders match your filter criteria.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setOrderFilter('all');
+                        setOrderSearch('');
+                      }}
+                      className="mt-2 text-xs font-bold text-[#a32222] hover:underline"
+                    >
+                      Clear Filters
+                    </button>
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>

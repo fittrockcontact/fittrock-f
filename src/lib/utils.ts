@@ -10,9 +10,10 @@ export function formatPrice(
   options: {
     currency?: 'INR' | 'USD';
     notation?: Intl.NumberFormatOptions['notation'];
+    maximumFractionDigits?: number;
   } = {}
 ) {
-  const { currency = 'INR', notation = 'standard' } = options;
+  const { currency = 'INR', notation = 'standard', maximumFractionDigits = 0 } = options;
 
   const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
 
@@ -20,6 +21,6 @@ export function formatPrice(
     style: 'currency',
     currency,
     notation,
-    maximumFractionDigits: 2,
+    maximumFractionDigits,
   }).format(numericAmount);
 }
