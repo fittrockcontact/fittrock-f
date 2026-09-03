@@ -17,3 +17,291 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ==========================================================================
+   Product Description & Feature Banner Styles
+   ========================================================================== */
+.product-description-content {
+  color: #3f3f46;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+
+/* Headings inside description */
+.product-description-content h2:not(.banner-title) {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #18181b;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
+}
+
+.product-description-content h3:not(.feature-title) {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #18181b;
+  margin-top: 1.5rem;
+  margin-bottom: 0.625rem;
+}
+
+.product-description-content p:not(.feature-description) {
+  margin-bottom: 0.875rem;
+  color: #52525b;
+  line-height: 1.65;
+}
+
+.product-description-content ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin: 0.875rem 0 1.25rem;
+}
+
+.product-description-content ol {
+  list-style-type: decimal;
+  padding-left: 1.25rem;
+  margin: 0.875rem 0 1.25rem;
+}
+
+.product-description-content li {
+  margin-bottom: 0.5rem;
+  color: #52525b;
+}
+
+.product-description-content hr {
+  border: 0;
+  border-top: 1px solid #e4e4e7;
+  margin: 1.75rem 0;
+}
+
+/* Tables in description */
+.product-description-content table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  margin: 1.5rem 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  border: 1px solid #e4e4e7 !important;
+  background-color: #ffffff !important;
+}
+
+.product-description-content th,
+.product-description-content thead td {
+  background-color: #f4f4f5 !important;
+  font-weight: 700 !important;
+  color: #18181b !important;
+  padding: 12px 16px !important;
+  border-bottom: 1px solid #e4e4e7 !important;
+  border-right: 1px solid #e4e4e7 !important;
+  font-size: 0.8125rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.product-description-content tbody td {
+  padding: 12px 16px !important;
+  border-bottom: 1px solid #f4f4f5 !important;
+  border-right: 1px solid #f4f4f5 !important;
+  font-size: 0.875rem !important;
+  color: #3f3f46 !important;
+}
+
+.product-description-content tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+.product-description-content tbody tr:nth-child(even) {
+  background-color: #fafafa !important;
+}
+
+/* Responsive and fallback image handling */
+.product-description-content img {
+  max-width: 100% !important;
+  height: auto !important;
+  border-radius: 12px !important;
+  margin: 1.25rem auto !important;
+  display: block !important;
+}
+
+.product-description-content img:not([src]),
+.product-description-content img[src=""] {
+  display: none !important;
+}
+
+/* Prevent unconstrained SVG blowout anywhere in description */
+.product-description-content svg:not(.icon) {
+  max-width: 48px !important;
+  max-height: 48px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Premium Feature Banner (Specs & Icons)
+   -------------------------------------------------------------------------- */
+.feature-banner,
+.product-description-content .feature-banner {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 1.5rem 0 2rem !important;
+  background: linear-gradient(135deg, #18181b 0%, #27272a 100%) !important;
+  border-radius: 20px !important;
+  padding: 36px 28px !important;
+  box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(249, 115, 22, 0.35) !important;
+}
+
+.banner-title,
+.product-description-content .banner-title {
+  text-align: center !important;
+  color: #ffffff !important;
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  margin-top: 0 !important;
+  margin-bottom: 1.75rem !important;
+  letter-spacing: -0.02em !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+.features-grid,
+.product-description-content .features-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  gap: 20px !important;
+}
+
+.feature-card,
+.product-description-content .feature-card {
+  background: #ffffff !important;
+  border-radius: 16px !important;
+  padding: 24px 18px !important;
+  text-align: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  border: 1px solid #e4e4e7 !important;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: default !important;
+}
+
+.feature-card:hover,
+.product-description-content .feature-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 14px 28px -4px rgba(234, 88, 12, 0.22) !important;
+  border-color: #f97316 !important;
+}
+
+.icon-wrapper,
+.product-description-content .icon-wrapper {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
+  margin: 0 auto 16px !important;
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%) !important;
+  border-radius: 9999px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.35) !important;
+  flex-shrink: 0 !important;
+}
+
+.icon,
+.icon-wrapper svg,
+.product-description-content .icon,
+.product-description-content .icon-wrapper svg {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  max-width: 34px !important;
+  max-height: 34px !important;
+  stroke: #ffffff !important;
+  fill: none !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  display: block !important;
+}
+
+/* Force SVG paths, rects, lines to have white stroke and no black fill */
+.icon path,
+.icon rect,
+.icon line,
+.icon-wrapper svg path,
+.icon-wrapper svg rect,
+.icon-wrapper svg line,
+.product-description-content .icon path,
+.product-description-content .icon rect,
+.product-description-content .icon line,
+.product-description-content .icon-wrapper svg path,
+.product-description-content .icon-wrapper svg rect,
+.product-description-content .icon-wrapper svg line {
+  stroke: #ffffff !important;
+  fill: none !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+.icon circle,
+.icon-wrapper svg circle,
+.product-description-content .icon circle,
+.product-description-content .icon-wrapper svg circle {
+  stroke: #ffffff !important;
+  stroke-width: 2 !important;
+}
+
+/* Circles without explicit white fill (e.g. alarm clock body) */
+.icon circle:not([fill="white"]),
+.icon-wrapper svg circle:not([fill="white"]),
+.product-description-content .icon circle:not([fill="white"]),
+.product-description-content .icon-wrapper svg circle:not([fill="white"]) {
+  fill: none !important;
+}
+
+/* Circles with explicit white fill (e.g. preset buttons dots) */
+.icon circle[fill="white"],
+.icon-wrapper svg circle[fill="white"],
+.product-description-content .icon circle[fill="white"],
+.product-description-content .icon-wrapper svg circle[fill="white"] {
+  fill: #ffffff !important;
+  stroke: none !important;
+}
+
+.feature-title,
+.product-description-content .feature-title {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: #18181b !important;
+  margin-top: 0 !important;
+  margin-bottom: 6px !important;
+  letter-spacing: -0.01em !important;
+}
+
+.feature-description,
+.product-description-content .feature-description {
+  font-size: 0.8125rem !important;
+  color: #52525b !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 640px) {
+  .feature-banner,
+  .product-description-content .feature-banner {
+    padding: 24px 16px !important;
+    border-radius: 16px !important;
+  }
+  .banner-title,
+  .product-description-content .banner-title {
+    font-size: 1.25rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+  .features-grid,
+  .product-description-content .features-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+}

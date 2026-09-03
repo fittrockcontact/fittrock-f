@@ -18,6 +18,8 @@ import {
   Save,
   CheckCircle2,
   ShoppingBag,
+  Truck,
+  Download,
 } from 'lucide-react';
 import { useAuth } from '@/lib/firebase/auth-context';
 import { formatPrice } from '@/lib/utils';
@@ -636,6 +638,26 @@ export default function AccountPage() {
                       <p className="text-[11px] text-zinc-400">
                         Placed on {ord.placed_at ? new Date(ord.placed_at).toLocaleDateString('en-IN') : 'Recent'}
                       </p>
+
+                      {ord.shipments && ord.shipments.length > 0 && ord.shipments[0].tracking_number && (
+                        <div className="flex items-center gap-1.5 text-xs text-zinc-800 bg-blue-50 border border-blue-200/80 px-2.5 py-1.5 rounded-lg w-fit mt-1">
+                          <Truck className="w-3.5 h-3.5 text-blue-600" />
+                          <span>
+                            {ord.shipments[0].carrier_name || 'Courier'}:{' '}
+                            <strong className="font-mono text-zinc-950 font-bold">{ord.shipments[0].tracking_number}</strong>
+                          </span>
+                          {ord.shipments[0].tracking_url && (
+                            <a
+                              href={ord.shipments[0].tracking_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline font-bold ml-1"
+                            >
+                              Track Live →
+                            </a>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     <div className="sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-zinc-200">
@@ -645,6 +667,18 @@ export default function AccountPage() {
                       <div className="text-[11px] text-emerald-700 font-medium flex items-center sm:justify-end gap-1">
                         <CheckCircle2 className="w-3 h-3" />
                         <span>Free Express Shipping Included</span>
+                      </div>
+
+                      <div className="pt-2 sm:pt-2 flex sm:justify-end">
+                        <a
+                          href={`/api/checkout/orders/${ord.order_number || ord.id}/invoice`}
+                          download
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-800 text-xs font-bold transition-colors"
+                          title="Download GST Tax Invoice PDF"
+                        >
+                          <Download className="w-3.5 h-3.5 text-zinc-600" />
+                          <span>Invoice (PDF)</span>
+                        </a>
                       </div>
                     </div>
                   </div>

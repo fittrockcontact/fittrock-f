@@ -109,7 +109,7 @@ export default function CheckoutPage() {
         throw new Error(data.error || 'Failed to create Razorpay order');
       }
 
-      const { orderId, amount, currency, dbOrderId } = data;
+      const { orderId, amount, currency, dbOrderId, orderNumber } = data;
 
       // 2. Open Razorpay Modal
       const options = {
@@ -117,13 +117,44 @@ export default function CheckoutPage() {
         amount: amount,
         currency: currency,
         name: 'Fittrock Ergonomics',
-        description: `Order #${dbOrderId.slice(0, 8)}`,
+        description: `Order ${orderNumber || dbOrderId.slice(0, 8)}`,
         image: 'https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?auto=format&fit=crop&w=300&q=80',
         order_id: orderId,
-        handler: function (response: any) {
-          toast.success('Payment authorized! Order confirmation is being processed.');
-          clearCart();
-          router.push(`/checkout/success?order_id=${dbOrderId}&payment_id=${response.razorpay_payment_id}`);
+        handler: async function (response: any) {
+          setIsSubmitting(true);
+          try {
+            toast.loading('Verifying payment...', { id: 'payment-verify' });
+
+            const verifyRes = await fetch(getApiUrl('/api/checkout/verify-payment'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                orderId: dbOrderId,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+
+            if (!verifyRes.ok) {
+              throw new Error(verifyData.error || 'Payment verification failed');
+            }
+
+            toast.success('Payment verified! Order confirmed.', { id: 'payment-verify' });
+            clearCart();
+            const confirmedOrderNumber = verifyData.orderNumber || orderNumber || dbOrderId;
+            router.push(`/checkout/success?order_id=${confirmedOrderNumber}&payment_id=${response.razorpay_payment_id}`);
+          } catch (verifyErr: any) {
+            console.error('Payment verification failed:', verifyErr);
+            toast.error(verifyErr.message || 'Payment verification failed', { id: 'payment-verify' });
+            setErrorMessage(
+              `Payment received (${response.razorpay_payment_id}), but verification was delayed. Please contact team@fittrock.com with your Payment ID.`
+            );
+          } finally {
+            setIsSubmitting(false);
+          }
         },
         prefill: {
           name: formData.name,

@@ -82,31 +82,129 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
 
+  // Group unique colors & sizes across variants
+  const availableColors = Array.from(new Set(safeVariants.map((v) => v.color).filter(Boolean))) as string[];
+  const availableSizes = Array.from(new Set(safeVariants.map((v) => v.size).filter(Boolean))) as string[];
+
   // Accordion state (Right sidebar)
   const [openSection, setOpenSection] = useState<'shipping' | 'warranty' | null>(null);
 
   const addItem = useCartStore((s) => s.addItem);
 
-  // 1. Variant-Specific Image Isolation:
-  // If the chosen variant has dedicated images, display ONLY those variant images in the preview and side gallery.
-  const variantDirectImg = selectedVariant?.imageUrl || (selectedVariant as any)?.image_url;
-  const variantImgs = Array.isArray(selectedVariant?.imageUrls)
-    ? (selectedVariant.imageUrls as string[]).filter((url) => Boolean(url))
-    : [];
+  // Gather and arrange images specifically for the selected FRAME COLOR:
+  // Display images matching the selected frame color (plus shared neutral feature images),
+  // while excluding images belonging to other frame colors.
+  const images = React.useMemo(() => {
+    const currentColor = (selectedVariant?.color || '').toLowerCase().trim();
 
-  const specificVariantImages = [
-    ...(variantDirectImg ? [variantDirectImg] : []),
-    ...variantImgs,
-  ].filter((url, idx, self) => Boolean(url) && self.indexOf(url) === idx);
+    // Map variant IDs to colors
+    const variantColorMap = new Map<string, string>();
+    safeVariants.forEach((v) => {
+      if (v.id && v.color) {
+        variantColorMap.set(v.id, v.color.toLowerCase().trim());
+      }
+    });
 
-  const prodImgs = Array.isArray(product?.imageUrls) ? product.imageUrls : [];
-  const directImg = product?.imageUrl ? [product.imageUrl] : [];
-  const generalProductImages = [...directImg, ...prodImgs, fallbackImage].filter(
-    (url, idx, self) => Boolean(url) && self.indexOf(url) === idx
-  );
+    // Identify other frame colors available for this product (e.g. ['black'] when white is selected)
+    const otherColors = availableColors
+      .map((c) => c.toLowerCase().trim())
+      .filter((c) => c && c !== currentColor);
 
-  // Use specific variant images if available; otherwise fallback to general product images
-  const images = specificVariantImages.length > 0 ? specificVariantImages : generalProductImages;
+    const isForOtherColor = (imgObj?: { altText?: string | null; variantId?: string | null; url?: string }) => {
+      if (!imgObj || otherColors.length === 0) return false;
+
+      // 1. Check variantId linkage
+      if (imgObj.variantId && variantColorMap.has(imgObj.variantId)) {
+        const varColor = variantColorMap.get(imgObj.variantId);
+        if (varColor && varColor !== currentColor) return true;
+      }
+
+      const alt = (imgObj.altText || '').toLowerCase();
+      const url = (imgObj.url || '').toLowerCase();
+
+      // If alt explicitly includes current color, it belongs to current color
+      if (currentColor && alt.includes(currentColor)) {
+        return false;
+      }
+
+      // If alt or filename explicitly matches another color (e.g. "black" when white is selected)
+      for (const oc of otherColors) {
+        const regex = new RegExp(`\\b${oc}\\b`, 'i');
+        if (regex.test(alt) || regex.test(url)) {
+          return true;
+        }
+      }
+
+      return false;
+    };
+
+    const isForCurrentColor = (imgObj?: { altText?: string | null; variantId?: string | null; url?: string }) => {
+      if (!currentColor || !imgObj) return false;
+      if (imgObj.variantId && variantColorMap.get(imgObj.variantId) === currentColor) return true;
+      const alt = (imgObj.altText || '').toLowerCase();
+      const regex = new RegExp(`\\b${currentColor}\\b`, 'i');
+      return regex.test(alt);
+    };
+
+    const colorMatchingImages: string[] = [];
+    const sharedNeutralImages: string[] = [];
+
+    // 1. Current selected variant direct image(s) first
+    const variantDirectImg = selectedVariant?.imageUrl || (selectedVariant as any)?.image_url;
+    if (variantDirectImg) colorMatchingImages.push(variantDirectImg);
+    if (Array.isArray(selectedVariant?.imageUrls)) {
+      (selectedVariant.imageUrls as string[]).forEach((url) => {
+        if (url) colorMatchingImages.push(url);
+      });
+    }
+
+    // 2. Images from product.images (contains altText, sortOrder, variantId)
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      const sorted = [...product.images].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+      sorted.forEach((img) => {
+        if (!img?.url) return;
+        if (isForOtherColor(img)) {
+          return;
+        }
+        if (isForCurrentColor(img)) {
+          colorMatchingImages.push(img.url);
+        } else {
+          sharedNeutralImages.push(img.url);
+        }
+      });
+    } else if (Array.isArray(product.imageUrls)) {
+      // Fallback: filter product.imageUrls
+      product.imageUrls.forEach((url) => {
+        if (!url) return;
+        let isOther = false;
+        for (const oc of otherColors) {
+          if (new RegExp(`\\b${oc}\\b`, 'i').test(url)) {
+            isOther = true;
+            break;
+          }
+        }
+        if (!isOther) {
+          colorMatchingImages.push(url);
+        }
+      });
+    }
+
+    // Combine: frame-color matching images first, followed by neutral shared feature graphics
+    const combined = [...colorMatchingImages, ...sharedNeutralImages].filter(
+      (url, idx, self) => Boolean(url) && self.indexOf(url) === idx
+    );
+
+    return combined.length > 0 ? combined : [product?.imageUrl || fallbackImage];
+  }, [product, safeVariants, selectedVariant?.id, selectedVariant?.color, availableColors]);
+
+  // When selected variant changes, reset image index to 0 to show the new variant's photo
+  const prevVariantIdRef = React.useRef(selectedVariant?.id);
+  React.useEffect(() => {
+    if (selectedVariant?.id !== prevVariantIdRef.current) {
+      prevVariantIdRef.current = selectedVariant?.id;
+      setSelectedImageIndex(0);
+    }
+  }, [selectedVariant?.id]);
 
   const currentImage = images[selectedImageIndex] || images[0] || fallbackImage;
 
@@ -115,9 +213,6 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
   const variantStock = selectedVariant ? (selectedVariant.stockQuantity ?? (selectedVariant as any).inventory_quantity ?? 10) : 10;
   const isOutOfStock = variantStock <= 0;
 
-  // Group unique colors & sizes across variants
-  const availableColors = Array.from(new Set(safeVariants.map((v) => v.color).filter(Boolean))) as string[];
-  const availableSizes = Array.from(new Set(safeVariants.map((v) => v.size).filter(Boolean))) as string[];
 
   // 2. Unavailable Option Matrix Helpers
   const checkSizeAvailable = (size: string) => {
@@ -238,6 +333,16 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
   const displayFeatures: FeatureShowcaseItem[] =
     selectedVariantFeatures.length > 0 ? selectedVariantFeatures : imageMatchedFeatures;
 
+  const formattedDescription = React.useMemo(() => {
+    if (!product.description) return '';
+    return product.description
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<img(?![^>]*\bsrc\s*=\s*['"][^'"]+['"])[^>]*>/gi, '')
+      .replace(/<p>\s*(?:&nbsp;|\s|<br\s*\/?>)*<\/p>/gi, '')
+      .trim();
+  }, [product.description]);
+
   const heroSummary =
     product.shortDescription ||
     product.descriptionText ||
@@ -263,18 +368,18 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-20">
           {/* Left Column: Image Gallery with Side Thumbnail Bar */}
           <div className="lg:col-span-7">
-            <div className="flex flex-col-reverse sm:flex-row gap-4">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 items-start">
               {/* Vertical Side Thumbnail Bar (Left Side) */}
               {images.length > 1 && (
-                <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-y-auto max-h-[540px] scrollbar-thin scrollbar-thumb-zinc-300 pr-1 shrink-0">
+                <div className="flex sm:flex-col gap-2.5 sm:gap-3 overflow-x-auto sm:overflow-y-auto max-h-[500px] sm:max-h-[580px] lg:max-h-[640px] scrollbar-thin scrollbar-thumb-zinc-300 pr-1.5 shrink-0 w-full sm:w-auto">
                   {images.map((img, idx) => (
                     <button
                       key={idx}
                       onClick={() => setSelectedImageIndex(idx)}
-                      className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 bg-zinc-50 shrink-0 transition-all ${
+                      className={`relative w-16 h-16 sm:w-18 sm:h-18 lg:w-20 lg:h-20 rounded-xl sm:rounded-2xl overflow-hidden border-2 bg-zinc-50 shrink-0 transition-all cursor-pointer ${
                         selectedImageIndex === idx
-                          ? 'border-amber-500 ring-2 ring-amber-500/40 scale-95 shadow-md'
-                          : 'border-zinc-200 opacity-60 hover:opacity-100 hover:border-zinc-300'
+                          ? 'border-zinc-900 ring-2 ring-zinc-900/20 shadow-md scale-[0.98]'
+                          : 'border-zinc-200/90 opacity-70 hover:opacity-100 hover:border-zinc-400'
                       }`}
                     >
                       <img src={img} alt={`${product.name} preview ${idx + 1}`} className="w-full h-full object-cover" />
@@ -402,15 +507,15 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
                 <h2 className="text-xl font-black text-zinc-900 tracking-tight">Product Overview & Details</h2>
               </div>
 
-              <div className="bg-zinc-50/70 border border-zinc-200/80 rounded-3xl p-6 sm:p-8 space-y-4">
-                {product.description && product.description.includes('<') ? (
+              <div className="bg-zinc-50/70 border border-zinc-200/80 rounded-3xl p-6 sm:p-8">
+                {formattedDescription && formattedDescription.includes('<') ? (
                   <div
-                    className="prose prose-zinc max-w-none text-sm text-zinc-700 leading-relaxed space-y-4 [&>h2]:text-lg [&>h2]:font-bold [&>h2]:text-zinc-900 [&>h2]:mt-6 [&>h2]:mb-3 [&>h3]:text-base [&>h3]:font-bold [&>h3]:text-zinc-900 [&>h3]:mt-5 [&>h3]:mb-2 [&>p]:leading-relaxed [&>p]:text-zinc-600 [&>ul]:list-disc [&>ul]:pl-5 [&>ul>li]:mb-1.5 [&>ul>li]:text-zinc-600"
-                    dangerouslySetInnerHTML={{ __html: product.description }}
+                    className="product-description-content max-w-none text-sm text-zinc-700 leading-relaxed space-y-4"
+                    dangerouslySetInnerHTML={{ __html: formattedDescription }}
                   />
                 ) : (
                   <p className="text-sm text-zinc-700 leading-relaxed whitespace-pre-line">
-                    {product.description || heroSummary}
+                    {formattedDescription || heroSummary}
                   </p>
                 )}
               </div>
@@ -451,7 +556,7 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
             {availableColors.length > 0 && (
               <div className="space-y-3">
                 <label className="text-xs font-bold uppercase tracking-wider text-zinc-600">
-                  Frame Color + Table Top Color: <span className="text-zinc-900">{selectedVariant?.color || 'Standard'}</span>
+                  Frame Color: <span className="text-zinc-900">{selectedVariant?.color || 'Standard'}</span>
                 </label>
                 <div className="flex flex-wrap gap-3">
                   {availableColors.map((color) => {
@@ -483,7 +588,7 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
             {availableSizes.length > 0 && (
               <div className="space-y-3">
                 <label className="text-xs font-bold uppercase tracking-wider text-zinc-600">
-                  Select Dimensions / Size: <span className="text-zinc-900">{selectedVariant?.size || 'Standard'}</span>
+                  Product Dimensions / Size: <span className="text-zinc-900">{selectedVariant?.size || 'Standard'}</span>
                 </label>
                 <div className="flex flex-wrap gap-3">
                   {availableSizes.map((size) => {
