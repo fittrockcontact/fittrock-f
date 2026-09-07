@@ -12,27 +12,27 @@ interface WorkspaceItem {
 }
 
 export function WorkspaceBuilder() {
-  // Configurable Cloudinary image URLs with fallback placeholders
+  // Real Cloudinary image URLs from Fittrock product catalog
   const rowOneItems: WorkspaceItem[] = [
     {
       title: 'KUBER - Dual Motor',
       href: '/collections/standing-desks',
-      cloudinaryUrl: 'https://res.cloudinary.com/fittrock/image/upload/v1/storefront/kuber-dual-motor.jpg',
-      fallbackPlaceholder: 'https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?auto=format&fit=crop&w=800&q=80',
+      cloudinaryUrl: 'https://res.cloudinary.com/suoauydj/image/upload/v1788429509/fittrock/products/Kuber_dark_mapple.jpg',
+      fallbackPlaceholder: 'https://res.cloudinary.com/suoauydj/image/upload/v1788429619/fittrock/products/Kuber_ice_beach2.jpg',
       aspectRatio: 'aspect-[4/3]',
     },
     {
       title: 'RATI - Single Motor',
       href: '/collections/standing-desks',
-      cloudinaryUrl: 'https://res.cloudinary.com/fittrock/image/upload/v1/storefront/rati-single-motor.jpg',
-      fallbackPlaceholder: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
+      cloudinaryUrl: 'https://res.cloudinary.com/suoauydj/image/upload/v1788429265/fittrock/products/rati_ice_beach1.jpg',
+      fallbackPlaceholder: 'https://res.cloudinary.com/suoauydj/image/upload/v1788429128/fittrock/products/rati_dark_mapple1.jpg',
       aspectRatio: 'aspect-[4/3]',
     },
     {
       title: 'Yogeek Luxe',
       href: '/collections/ergonomic-chairs',
-      cloudinaryUrl: 'https://res.cloudinary.com/fittrock/image/upload/v1/storefront/yogeek-luxe.jpg',
-      fallbackPlaceholder: 'https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&w=800&q=80',
+      cloudinaryUrl: 'https://res.cloudinary.com/suoauydj/image/upload/v1788429780/fittrock/products/1_c31a2eff-b24a-4a22-9fef-4fb71db1c8d4.jpg',
+      fallbackPlaceholder: 'https://res.cloudinary.com/suoauydj/image/upload/v1788429796/fittrock/products/YG_0115.png',
       aspectRatio: 'aspect-[4/3]',
     },
   ];
@@ -41,15 +41,15 @@ export function WorkspaceBuilder() {
     {
       title: 'Premium Engineered Wood Table Tops Online | Fittrock',
       href: '/collections/standing-desks',
-      cloudinaryUrl: 'https://res.cloudinary.com/fittrock/image/upload/v1/storefront/table-tops.jpg',
-      fallbackPlaceholder: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80',
+      cloudinaryUrl: 'https://res.cloudinary.com/suoauydj/image/upload/v1788429718/fittrock/products/IceBeach.jpg',
+      fallbackPlaceholder: 'https://res.cloudinary.com/suoauydj/image/upload/v1788429706/fittrock/products/tabletop.jpg',
       aspectRatio: 'aspect-[16/9]',
     },
     {
       title: 'Cable Management Tray',
       href: '/collections/desk-accessories',
-      cloudinaryUrl: 'https://res.cloudinary.com/fittrock/image/upload/v1/storefront/cable-management-tray.jpg',
-      fallbackPlaceholder: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=1200&q=80',
+      cloudinaryUrl: 'https://res.cloudinary.com/suoauydj/image/upload/v1788429720/fittrock/products/1White1.jpg',
+      fallbackPlaceholder: 'https://res.cloudinary.com/suoauydj/image/upload/v1788429722/fittrock/products/1Black.jpg',
       aspectRatio: 'aspect-[16/9]',
     },
   ];
@@ -97,10 +97,13 @@ function WorkspaceCard({ item }: { item: WorkspaceItem }) {
         <img
           src={imgSrc}
           alt={item.title}
+          loading="lazy"
+          decoding="async"
           onError={() => {
-            // Fallback to placeholder if Cloudinary URL is not yet uploaded
             if (imgSrc !== item.fallbackPlaceholder) {
               setImgSrc(item.fallbackPlaceholder);
+            } else if (imgSrc !== '/og-image.png') {
+              setImgSrc('/og-image.png');
             }
           }}
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"

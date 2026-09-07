@@ -3,9 +3,28 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 import { ShieldCheck, Cpu, Hammer, FileText, CheckCircle2, AlertTriangle } from 'lucide-react';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fittrock.com';
+
 export const metadata: Metadata = {
-  title: 'Warranty Policy & Claim Process | Fittrock Ergonomics LLP',
+  title: 'Warranty Policy & Claim Process',
   description: '10-Year Structural Frame Warranty and 3-Year Motor & Electrical Warranty terms, coverage breakdown, and claim submission process.',
+  alternates: {
+    canonical: `${siteUrl}/warranty`,
+  },
+  openGraph: {
+    title: 'Warranty Policy & Claim Process | Fittrock Ergonomics LLP',
+    description: '10-Year Structural Frame Warranty and 3-Year Motor & Electrical Warranty terms for Fittrock standing desks.',
+    url: `${siteUrl}/warranty`,
+    type: 'website',
+    siteName: 'Fittrock Ergonomics',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Fittrock Warranty Policy' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Warranty Policy | Fittrock Ergonomics',
+    description: '10-Year Structural Frame Warranty and 3-Year Electrical Warranty.',
+    images: ['/og-image.png'],
+  },
 };
 
 export default function WarrantyPolicyPage() {

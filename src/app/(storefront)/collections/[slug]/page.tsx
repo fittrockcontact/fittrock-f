@@ -10,28 +10,63 @@ interface Props {
 
 export const dynamic = 'force-dynamic';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fittrock.com';
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  let title = '';
+  let description = '';
+
   try {
     const data = await apiFetch<{ collection: any }>(`/api/collections/${slug}`);
     if (data.collection) {
-      return {
-        title: `${data.collection.name} | Fittrock Ergonomics`,
-        description: data.collection.description || `Shop premium ${data.collection.name} at Fittrock Ergonomics.`,
-      };
+      title = data.collection.name;
+      description =
+        data.collection.description ||
+        `Shop premium ${data.collection.name} at Fittrock Ergonomics. Precision electric standing desks engineered for health & focus.`;
     }
-  } catch (e) {
-    // Ignore error
+  } catch {
+    // Fallback
   }
 
-  const titleFormatted = slug
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
+  if (!title) {
+    const titleFormatted = slug
+      .split('-')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+    title = titleFormatted;
+    description = `Browse our collection of ${titleFormatted} engineered for posture & focus.`;
+  }
+
+  const canonicalUrl = `${siteUrl}/collections/${slug}`;
 
   return {
-    title: `${titleFormatted} | Fittrock Ergonomics`,
-    description: `Browse our collection of ${titleFormatted} engineered for posture & focus.`,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      type: 'website',
+      siteName: 'Fittrock Ergonomics',
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
+    },
   };
 }
 
@@ -55,37 +90,87 @@ export default async function CollectionPage({ params }: Props) {
     notFound();
   }
 
-  return (
-    <div className="py-12 bg-white min-h-screen text-zinc-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Collection Header */}
-        <div className="bg-zinc-50 border border-zinc-200 rounded-3xl p-8 sm:p-12 mb-12 space-y-3 relative overflow-hidden shadow-sm">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-          <span className="text-xs font-bold uppercase tracking-wider text-amber-600 block">
-            Collection
-          </span>
-          <h1 className="text-3xl sm:text-5xl font-black text-zinc-900 tracking-tight">
-            {collectionData.name}
-          </h1>
-          <p className="text-zinc-600 text-sm sm:text-base max-w-2xl leading-relaxed">
-            {collectionData.description}
-          </p>
-        </div>
+  const canonicalUrl = `${siteUrl}/collections/${slug}`;
 
-        {/* Products Grid */}
-        {collectionProducts.length === 0 ? (
-          <div className="text-center py-20 bg-zinc-50 rounded-2xl border border-zinc-200 space-y-3">
-            <h3 className="text-xl font-bold text-zinc-800">No products in this collection yet</h3>
-            <p className="text-sm text-zinc-500">Products added to this category in Supabase will automatically appear here.</p>
+  const collectionJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: collectionData.name,
+    description: collectionData.description,
+    url: canonicalUrl,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: collectionProducts.map((prod, idx) => ({
+        '@type': 'ListItem',
+        position: idx + 1,
+        name: prod.name || prod.title,
+        url: `${siteUrl}/products/${prod.slug}`,
+      })),
+    },
+  };
+
+  const breadcrumbsJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: siteUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: collectionData.name,
+        item: canonicalUrl,
+      },
+    ],
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }}
+      />
+      <div className="py-12 bg-white min-h-screen text-zinc-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Collection Header */}
+          <div className="bg-zinc-50 border border-zinc-200 rounded-3xl p-8 sm:p-12 mb-12 space-y-3 relative overflow-hidden shadow-sm">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-600 block">
+              Collection
+            </span>
+            <h1 className="text-3xl sm:text-5xl font-black text-zinc-900 tracking-tight">
+              {collectionData.name}
+            </h1>
+            <p className="text-zinc-600 text-sm sm:text-base max-w-2xl leading-relaxed">
+              {collectionData.description}
+            </p>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {collectionProducts.map((prod) => (
-              <ProductCard key={prod.id} product={prod} />
-            ))}
-          </div>
-        )}
+
+          {/* Products Grid */}
+          {collectionProducts.length === 0 ? (
+            <div className="text-center py-20 bg-zinc-50 rounded-2xl border border-zinc-200 space-y-3">
+              <h3 className="text-xl font-bold text-zinc-800">No products in this collection yet</h3>
+              <p className="text-sm text-zinc-500">
+                Products added to this category in Supabase will automatically appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {collectionProducts.map((prod) => (
+                <ProductCard key={prod.id} product={prod} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

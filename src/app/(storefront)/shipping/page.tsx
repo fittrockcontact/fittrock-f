@@ -3,9 +3,28 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 import { Truck, Package, MapPin, ShieldCheck, Clock, CheckCircle } from 'lucide-react';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fittrock.com';
+
 export const metadata: Metadata = {
-  title: 'Shipping & Delivery Policy | Fittrock Ergonomics LLP',
+  title: 'Shipping & Delivery Policy',
   description: 'Pan-India free shipping on standing desks. Delivery timelines (3-7 days), courier partners, transit insurance, and packaging safety details.',
+  alternates: {
+    canonical: `${siteUrl}/shipping`,
+  },
+  openGraph: {
+    title: 'Shipping & Delivery Policy | Fittrock Ergonomics LLP',
+    description: '100% Free Express Shipping across 19,000+ Indian pin codes with full transit insurance.',
+    url: `${siteUrl}/shipping`,
+    type: 'website',
+    siteName: 'Fittrock Ergonomics',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Fittrock Shipping Policy' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Shipping Policy | Fittrock Ergonomics',
+    description: '100% Free Express Shipping across 19,000+ pin codes in India.',
+    images: ['/og-image.png'],
+  },
 };
 
 export default function ShippingPolicyPage() {

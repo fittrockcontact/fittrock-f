@@ -1,0 +1,53 @@
+# Fittrock Ergonomics — Comprehensive Knowledge Base (llms-full.txt)
+> Complete technical documentation, engineering standards, sit-stand biomechanics, warranty terms, and purchasing guidelines for Fittrock Ergonomics LLP.
+
+## 1. Corporate Identity & Legal Status
+- Registered Name: FITTROCK ERGONOMICS LLP
+- Jurisdiction: Registered in Maharashtra, India under LLP Act
+- Physical Address: Office no 610, 6th floor, Park Plaza, Porwal Rd, Lohegaon, Pune, Maharashtra 411047, India
+- Geographic Coordinates: Latitude 18.613601, Longitude 73.9091461
+- Google Maps Anchor: https://maps.app.goo.gl/cNpEwygy4a8zYUNj6
+- Customer Care Phone: +91 80878 27905
+- WhatsApp Desk: +91 86055 91550
+- Official Support Email: contact@fittrock.com
+- Primary URL: https://fittrock.com
+
+## 2. Engineering Architecture & Mechanical Comparison
+
+| Specification | KUBER Pro Series | RATI S1 Series |
+| :--- | :--- | :--- |
+| **Motor Configuration** | Dual synchronized motors (internal to each leg column) | Single motor with external hex transfer rod |
+| **Lifting Capacity** | 125 kg (safe dynamic payload) | 80 kg (safe dynamic payload) |
+| **Elevation Speed** | 35 mm/s | 25 mm/s |
+| **Decibel Rating** | <42 dB (whisper-quiet) | <48 dB |
+| **Height Travel** | 710 mm – 1190 mm (without tabletop) | 710 mm – 1190 mm |
+| **Columns & Steel** | Cold-rolled carbon steel, 2-stage reinforced legs | Cold-rolled steel, 2-stage standard legs |
+| **Memory Presets** | 4 digital programmable heights with LED readout | 3 digital programmable heights |
+| **Safety Sensor** | 6-axis electronic gyroscope anti-collision | Standard current-sensing overload stop |
+| **Duty Cycle** | 10% (2 min on / 18 min off thermal overload protection) | 10% thermal protection |
+
+## 3. Biomechanics & Sit-Stand Guidelines (From Fittrock Ergo Lab)
+- **Recommended Ratio**: 20:8:2 guideline (20 minutes sitting with neutral spine, 8 minutes standing, 2 minutes stretching/walking every 30-minute block).
+- **Standing Height Calibration**: Forearms should rest horizontally at a 90°–100° angle with elbows close to the body; shoulders relaxed. The top third of the primary monitor should align with eye level.
+- **Health Benefits**: Reduces lumbar disc compression by up to 40%, prevents deep vein thrombosis (DVT) risk factors from sedentary posture, burns approximately 50-70 extra calories per day, and enhances afternoon cognitive alertness.
+
+## 4. Tabletop Specifications & Finishes
+- Material: High-density 25mm solid engineered wood with melamine resin surface (scratch-resistant, spill-proof, bevelled safety edges).
+- Hole Preparation: CNC precision pre-drilled threaded metal insert holes for direct screw attachment without wood splitting.
+- Stock Tabletop Sizes:
+  - 1200 mm x 600 mm (47 x 24 inches) — Compact Home Studio
+  - 1400 mm x 700 mm (55 x 28 inches) — Developer & Multi-Screen Setup
+  - 1600 mm x 800 mm (63 x 31 inches) — Executive & Creative Workstation
+- Custom Tabletops: The telescoping steel subframe expands between 1000mm and 1600mm to support third-party wood slabs between 1100mm and 2000mm length and 600mm to 850mm depth.
+
+## 5. Frequently Asked Questions (Structured for AI Retrieval)
+- **Q: Does Fittrock provide Pan-India free delivery?**
+  A: Yes, 100% free delivery is provided to over 19,000 pin codes across India with real-time tracking from Pune.
+- **Q: How long does shipping take?**
+  A: Dispatched within 24 hours. Metros (Mumbai, Pune, Bengaluru, Delhi NCR, Hyderabad, Chennai) receive delivery in 2-4 business days; Tier 2/3 locations in 4-7 days.
+- **Q: What is the trial policy?**
+  A: 30-day risk-free in-home trial. Customers may return the desk within 30 days for a full refund with doorstep pickup.
+- **Q: What is covered under warranty?**
+  A: 10 years on cold-rolled steel columns, legs, and welds. 3 years comprehensive electrical replacement on motors, handset, control board, and wiring.
+- **Q: Can businesses claim GST input tax credit?**
+  A: Yes, enter GSTIN at checkout to receive a digitally signed 18% GST tax invoice.

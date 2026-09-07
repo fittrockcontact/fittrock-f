@@ -4,14 +4,69 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import { Building2, Award, Sparkles, MapPin, Phone, Mail, CheckCircle2, ShieldCheck } from 'lucide-react';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fittrock.com';
+
 export const metadata: Metadata = {
-  title: 'About Us & Seller Information | Fittrock Ergonomics LLP',
+  title: 'About Us & Seller Information',
   description: 'Learn about Fittrock Ergonomics LLP, India’s premier manufacturer of electric dual-motor height-adjustable standing desks and ergonomic wellness furniture based in Pune.',
+  alternates: {
+    canonical: `${siteUrl}/about`,
+  },
+  openGraph: {
+    title: 'About Us & Seller Information | Fittrock Ergonomics LLP',
+    description: 'Learn about Fittrock Ergonomics LLP, manufacturer of precision electric standing desks in Pune, India.',
+    url: `${siteUrl}/about`,
+    type: 'website',
+    siteName: 'Fittrock Ergonomics',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'About Fittrock Ergonomics',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About Fittrock Ergonomics',
+    description: 'Learn about Fittrock Ergonomics LLP based in Pune, India.',
+    images: ['/og-image.png'],
+  },
 };
 
 export default function AboutPage() {
+  const aboutSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: 'About Fittrock Ergonomics',
+    url: `${siteUrl}/about`,
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'FITTROCK ERGONOMICS LLP',
+      legalName: 'FITTROCK ERGONOMICS LLP',
+      url: siteUrl,
+      logo: `${siteUrl}/logo.png`,
+      description:
+        'India premier manufacturer of electric dual-motor height-adjustable standing desks and ergonomic wellness furniture based in Pune.',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Office no 610, 6th floor, Park Plaza, Porwal Rd',
+        addressLocality: 'Lohegaon, Pune',
+        addressRegion: 'Maharashtra',
+        postalCode: '411047',
+        addressCountry: 'IN',
+      },
+    },
+  };
+
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 py-16 sm:py-24">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutSchema) }}
+      />
+      <div className="min-h-screen bg-zinc-950 text-zinc-100 py-16 sm:py-24">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         {/* Header */}
         <div className="space-y-4 border-b border-zinc-800 pb-8 text-center sm:text-left">
@@ -109,5 +164,6 @@ export default function AboutPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

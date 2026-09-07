@@ -3,9 +3,28 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 import { ArrowLeftRight, PackageCheck, Truck, ShieldAlert, CheckCircle } from 'lucide-react';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fittrock.com';
+
 export const metadata: Metadata = {
-  title: 'Return & Exchange Policy | Fittrock Ergonomics LLP',
+  title: 'Return & Exchange Policy',
   description: 'Understand the return, replacement, and exchange process for Fittrock motorized standing desks, frames, and ergonomic accessories.',
+  alternates: {
+    canonical: `${siteUrl}/returns`,
+  },
+  openGraph: {
+    title: 'Return & Exchange Policy | Fittrock Ergonomics LLP',
+    description: '30-Day Risk-Free Trial, doorstep reverse pickup, and replacement policies for Fittrock standing desks.',
+    url: `${siteUrl}/returns`,
+    type: 'website',
+    siteName: 'Fittrock Ergonomics',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Fittrock Return Policy' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Return & Exchange Policy | Fittrock Ergonomics',
+    description: '30-Day Risk-Free Trial with doorstep reverse pickup across India.',
+    images: ['/og-image.png'],
+  },
 };
 
 export default function ReturnsPage() {

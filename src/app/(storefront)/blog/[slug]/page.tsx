@@ -15,6 +15,8 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fittrock.com';
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = getBlogPostBySlug(slug);
@@ -25,13 +27,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const canonicalUrl = `${siteUrl}/blog/${slug}`;
+
   return {
-    title: `${post.title} | Fittrock Ergo Lab`,
+    title: post.title,
     description: post.excerpt,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
+      type: 'article',
       title: post.title,
       description: post.excerpt,
-      images: [{ url: post.image }],
+      url: canonicalUrl,
+      publishedTime: post.date,
+      authors: [post.author],
+      tags: post.tags,
+      images: [{ url: post.image, width: 1200, height: 630, alt: post.title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt,
+      images: [post.image],
+      creator: '@fittrockindia',
     },
   };
 }
@@ -146,9 +165,73 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   const author = getAuthorByName(post.author);
+  const canonicalUrl = `${siteUrl}/blog/${slug}`;
+
+  const blogPostJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt,
+    image: [post.image],
+    datePublished: post.date,
+    dateModified: post.date,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl,
+    },
+    author: {
+      '@type': 'Person',
+      name: post.author,
+      jobTitle: post.authorRole,
+      url: author ? `${siteUrl}/authors/${author.slug}` : `${siteUrl}/authors`,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'FITTROCK ERGONOMICS LLP',
+      url: siteUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/logo.png`,
+      },
+    },
+  };
+
+  const breadcrumbsJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: siteUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Blog',
+        item: `${siteUrl}/blog`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: post.title,
+        item: canonicalUrl,
+      },
+    ],
+  };
 
   return (
-    <article className="py-16 sm:py-24 bg-white text-zinc-900 min-h-screen">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }}
+      />
+      <article className="py-16 sm:py-24 bg-white text-zinc-900 min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
         {/* Navigation & Category */}
         <div className="flex items-center justify-between">
@@ -289,5 +372,6 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
       </div>
     </article>
+    </>
   );
 }

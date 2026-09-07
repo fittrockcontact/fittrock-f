@@ -30,6 +30,8 @@ export async function generateStaticParams() {
   return authors.map((author) => ({ slug: author.slug }));
 }
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fittrock.com';
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const author = getAuthorBySlug(slug);
@@ -40,13 +42,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const canonicalUrl = `${siteUrl}/authors/${slug}`;
+
   return {
-    title: `${author.name} - ${author.role} | Fittrock Ergonomics`,
+    title: `${author.name} - ${author.role}`,
     description: author.shortBio,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
-      title: `${author.name} | Fittrock`,
+      type: 'profile',
+      title: `${author.name} | Fittrock Ergonomics`,
       description: author.bio,
-      images: [{ url: author.avatar }],
+      url: canonicalUrl,
+      images: [{ url: author.avatar, width: 400, height: 400, alt: author.name }],
+    },
+    twitter: {
+      card: 'summary',
+      title: `${author.name} - ${author.role}`,
+      description: author.shortBio,
+      images: [author.avatar],
     },
   };
 }
@@ -60,9 +75,69 @@ export default async function AuthorProfilePage({ params }: Props) {
   }
 
   const posts = getPostsByAuthor(author.name);
+  const canonicalUrl = `${siteUrl}/authors/${slug}`;
+
+  const sameAsLinks: string[] = [];
+  if (author.socials?.linkedin) sameAsLinks.push(author.socials.linkedin);
+  if (author.socials?.twitter) sameAsLinks.push(author.socials.twitter);
+  if (author.socials?.website) sameAsLinks.push(author.socials.website);
+
+  const authorJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    mainEntity: {
+      '@type': 'Person',
+      name: author.name,
+      jobTitle: author.role,
+      description: author.bio,
+      image: author.avatar,
+      worksFor: {
+        '@type': 'Organization',
+        name: 'FITTROCK ERGONOMICS LLP',
+        url: siteUrl,
+      },
+      knowsAbout: author.expertise,
+      alumniOf: author.education,
+      sameAs: sameAsLinks,
+    },
+  };
+
+  const breadcrumbsJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: siteUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Ergonomics Authors',
+        item: `${siteUrl}/authors`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: author.name,
+        item: canonicalUrl,
+      },
+    ],
+  };
 
   return (
-    <div className="py-16 sm:py-24 bg-white text-zinc-900 min-h-screen">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(authorJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }}
+      />
+      <div className="py-16 sm:py-24 bg-white text-zinc-900 min-h-screen">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
         {/* Back Link */}
         <Link
@@ -245,5 +320,6 @@ export default async function AuthorProfilePage({ params }: Props) {
         </div>
       </div>
     </div>
+    </>
   );
 }

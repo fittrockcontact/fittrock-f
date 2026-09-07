@@ -11,16 +11,25 @@ export default function StorefrontLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fittrock.com';
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: 'FITTROCK ERGONOMICS LLP',
     legalName: 'FITTROCK ERGONOMICS LLP',
-    url: 'https://fittrock.com/',
-    logo: 'https://fittrock.com/logo.png',
+    url: siteUrl,
+    logo: `${siteUrl}/logo.png`,
+    image: `${siteUrl}/og-image.png`,
     telephone: '+918087827905',
     email: 'contact@fittrock.com',
     priceRange: '₹₹₹',
+    currenciesAccepted: 'INR',
+    paymentAccepted: 'Credit Card, Debit Card, UPI, Net Banking, EMI',
+    areaServed: {
+      '@type': 'Country',
+      name: 'India',
+    },
     address: {
       '@type': 'PostalAddress',
       streetAddress: 'Office no 610, 6th floor, Park Plaza, Porwal Rd',
@@ -35,6 +44,36 @@ export default function StorefrontLayout({
       longitude: 73.9091461,
     },
     hasMap: 'https://maps.app.goo.gl/cNpEwygy4a8zYUNj6',
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        opens: '09:30',
+        closes: '19:00',
+      },
+    ],
+    contactPoint: [
+      {
+        '@type': 'ContactPoint',
+        telephone: '+918087827905',
+        contactType: 'customer service',
+        areaServed: 'IN',
+        availableLanguage: ['English', 'Hindi', 'Marathi'],
+      },
+      {
+        '@type': 'ContactPoint',
+        telephone: '+918605591550',
+        contactType: 'sales',
+        contactOption: 'WhatsApp',
+        areaServed: 'IN',
+      },
+    ],
+    knowsAbout: [
+      'Electric Height Adjustable Standing Desks',
+      'Dual Motor Workstations',
+      'Ergonomic Lumbar Chairs',
+      'Office Ergonomics and Workplace Biomechanics',
+    ],
     sameAs: [
       'https://www.youtube.com/@FITTROCK',
       'https://www.instagram.com/fittrock_',

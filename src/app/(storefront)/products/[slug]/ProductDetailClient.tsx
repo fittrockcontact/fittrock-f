@@ -396,13 +396,6 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
                   className="w-full h-full object-cover transition-opacity duration-300"
                 />
 
-                {/* Watermark Brand Logo on Top Right */}
-                <div className="absolute top-4 right-5 pointer-events-none select-none z-10">
-                  <span className="text-xl font-black tracking-tight text-zinc-900/90 drop-shadow-sm">
-                    Fitt<span className="text-amber-500">ROCK</span>
-                  </span>
-                </div>
-
                 {/* Stock Badge on Top Left */}
                 <div className="absolute top-4 left-4 z-10">
                   {isOutOfStock ? (

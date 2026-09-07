@@ -335,7 +335,6 @@ export function Header() {
     { href: '/collections/table-tops', label: 'Table Tops', key: 'table-tops' },
     { href: '/collections/desk-accessories', label: 'Accessories', key: 'accessories' },
     { href: '/testimonials', label: 'Reviews', key: 'reviews' },
-    { href: '/blog', label: 'Blog', key: 'blog' },
   ];
 
   return (
