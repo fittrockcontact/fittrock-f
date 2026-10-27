@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description =
         p.shortDescription ||
         p.description ||
-        `Buy ${p.name || p.title} with 10-Year Frame Warranty and Free Shipping across India.`;
+        `Buy ${p.name || p.title} with 3-Year Frame Warranty and Free Shipping across India.`;
       if (p.imageUrl) {
         imageUrl = p.imageUrl;
       } else if (Array.isArray(p.imageUrls) && p.imageUrls.length > 0) {
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
     title = name;
-    description = `Shop ${name} height-adjustable standing desks, dual-motor lift systems, and ergonomic furniture with 10-Year Warranty.`;
+    description = `Shop ${name} height-adjustable standing desks, dual-motor lift systems, and ergonomic furniture with 3-Year Warranty.`;
   }
 
   const canonicalUrl = `${siteUrl}/products/${slug}`;
@@ -126,7 +126,7 @@ export default async function ProductPage({ params }: Props) {
   const productDescription =
     productData.shortDescription ||
     productData.description ||
-    `Fittrock ${productName} motorized height adjustable standing desk with German-spec motors and 10-Year Warranty.`;
+    `Fittrock ${productName} motorized height adjustable standing desk with German-spec motors and 3-Year Warranty.`;
 
   // Product Schema.org JSON-LD (Latest Search Central / Merchant Return Policy standard)
   const productJsonLd = {

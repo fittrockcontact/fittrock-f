@@ -6,8 +6,6 @@ import { AvailableOn } from '@/components/storefront/AvailableOn';
 import { KuberDeskSlider } from '@/components/storefront/KuberDeskSlider';
 import { RatiDeskSlider } from '@/components/storefront/RatiDeskSlider';
 import { TrustBadges } from '@/components/storefront/TrustBadges';
-import { DeskConfigurator } from '@/components/storefront/DeskConfigurator';
-import { TestimonialSection } from '@/components/storefront/TestimonialSection';
 import { YouTubeSection } from '@/components/storefront/YouTubeSection';
 import { GoogleReviewsTrustSection } from '@/components/storefront/GoogleReviewsTrustSection';
 import { FAQAccordion } from '@/components/storefront/FAQAccordion';
@@ -46,7 +44,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Fittrock Ergonomics | Electric Height Adjustable Desks',
-    description: '125kg capacity dual-motor standing desks with whisper quiet <42dB operation & 10-Year Warranty.',
+    description: '125kg capacity dual-motor standing desks with whisper quiet <42dB operation & 3-Year Warranty.',
     images: ['/og-image.png'],
   },
 };
@@ -115,7 +113,7 @@ export default async function HomePage() {
         name: 'How long does shipping take and is assembly included?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'We offer free express delivery within 3-5 business days across India. Desks come with a pre-wired control box and numbered assembly guide. Toolkits and screws are included.',
+          text: 'We offer free express delivery within 5-7 days across India. Desks come with a pre-wired control box and numbered assembly guide. Toolkits and screws are included.',
         },
       },
       {
@@ -123,7 +121,7 @@ export default async function HomePage() {
         name: 'What warranty coverage is included with Fittrock desks?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Every Fittrock desk frame is backed by our industry-leading 10-Year Structural Warranty, and electric motors/control boxes are covered by a 3-Year Replacement Warranty.',
+          text: 'Every Fittrock desk frame is backed by a 3-Year Structural Warranty, and electric motors/control boxes are covered by a 1-Year Replacement Warranty.',
         },
       },
     ],
@@ -160,12 +158,6 @@ export default async function HomePage() {
 
         {/* 7. Trust Badges */}
         <TrustBadges />
-
-        {/* 8. Interactive Studio Configurator */}
-        <DeskConfigurator />
-
-        {/* 9. Verified Customer Reviews */}
-        <TestimonialSection />
 
         {/* 10. YouTube Shorts Showcase */}
         <YouTubeSection />

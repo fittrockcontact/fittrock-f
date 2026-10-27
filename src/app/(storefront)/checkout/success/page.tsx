@@ -72,7 +72,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
                   Official GST Tax Invoice Generated
                 </h3>
                 <p className="text-[11px] text-zinc-500">
-                  Includes full HSN breakdown, 18% GST tax computation, and 5-year warranty certificate.
+                  Includes full HSN breakdown, 18% GST tax computation, and warranty certificate.
                 </p>
               </div>
             </div>
@@ -91,7 +91,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
         <div className="border-t border-zinc-200 pt-4 text-xs text-zinc-600 space-y-2">
           <div className="flex items-center gap-2 justify-center text-zinc-700 font-medium">
             <Truck className="w-4 h-4 text-amber-600" />
-            <span>Estimated Delivery: 3-5 Business Days (Pune Hub)</span>
+            <span>Estimated Delivery: 5-7 Days (Pune Hub)</span>
           </div>
           <p className="text-[11px] text-zinc-500">
             A confirmation email with your tax invoice PDF attached has also been dispatched to your inbox.

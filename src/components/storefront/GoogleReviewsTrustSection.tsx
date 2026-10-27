@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Star, ChevronLeft, ChevronRight, Lock, CheckCircle2 } from 'lucide-react';
-import { apiFetch } from '@/lib/api-client';
 
 function GoogleIcon({ className = 'w-4 h-4' }: { className?: string }) {
   return (
@@ -43,89 +42,47 @@ function GoogleLogoText() {
 interface GoogleReview {
   id: string;
   author_name: string;
+  author_url: string | null;
   date: string;
-  avatar: string;
+  avatar: string | null;
   rating: number;
   comment: string;
+}
+
+interface GoogleReviewsResponse {
+  rating: number | null;
+  totalReviews: number;
+  mapsUrl: string | null;
+  reviews: GoogleReview[];
+}
+
+const GOOGLE_REVIEWS_URL = 'https://share.google/ERo5PamELGZZmvh1S';
+
+function ratingLabel(rating: number): string {
+  if (rating >= 4.5) return 'Excellent';
+  if (rating >= 4) return 'Very Good';
+  if (rating >= 3) return 'Good';
+  return 'Rated';
 }
 
 export function GoogleReviewsTrustSection() {
   const sliderRef = useRef<HTMLDivElement>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [activeDot, setActiveDot] = useState(0);
+  const [google, setGoogle] = useState<GoogleReviewsResponse | null>(null);
 
-  // Exact reviews from the screenshot
-  const defaultGoogleReviews: GoogleReview[] = [
-    {
-      id: 'g-rev-1',
-      author_name: 'Gopala Ganesha...',
-      date: 'Jul 5, 2026',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-      rating: 5,
-      comment:
-        '⭐⭐⭐⭐⭐ 5/5 I recently purchased the single Motor White, 1600 mm × 700 mm Height Adjustable Standing Desk from Fittrock, and I am genuinely impressed with the overall quality and stability.',
-    },
-    {
-      id: 'g-rev-2',
-      author_name: 'Hacker Wala',
-      date: 'Apr 23, 2026',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-      rating: 5,
-      comment:
-        "I've done extensive research on height-adjustable desks in India, and FITTROCK is easily the best value for money! The dual motor lift speed is rapid and whisper-quiet.",
-    },
-    {
-      id: 'g-rev-3',
-      author_name: 'Rajiv Ramroop',
-      date: 'Apr 3, 2026',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
-      rating: 5,
-      comment:
-        'The Desk quality is impressive and absolutely worth the price. Overall, a great experience with both customer support and quick doorstep delivery.',
-    },
-    {
-      id: 'g-rev-4',
-      author_name: 'Pramod Jadhav',
-      date: 'Mar 27, 2026',
-      avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=200&q=80',
-      rating: 5,
-      comment:
-        'Solid steel construction, flawless finish on the tabletop, and simple DIY setup instructions. 10/10 recommendation for home office ergonomics.',
-    },
-    {
-      id: 'g-rev-5',
-      author_name: 'Pralhad Sonar',
-      date: 'Feb 15, 2026',
-      avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=200&q=80',
-      rating: 5,
-      comment:
-        'Fittrock going extra mile with its Ergonomic Office Furniture offerings. Seamless height adjustment and sturdy tabletop.',
-    },
-  ];
-
-  const [reviewsList, setReviewsList] = useState<GoogleReview[]>(defaultGoogleReviews);
-
+  // Live reviews from the Fittrock Google Business Profile (via /api/google-reviews)
   useEffect(() => {
-    async function loadDbReviews() {
-      try {
-        const res = await apiFetch<{ reviews: any[] }>('/api/products/testimonials/all');
-        if (res?.reviews && res.reviews.length > 0) {
-          const mapped: GoogleReview[] = res.reviews.map((r: any) => ({
-            id: r.id,
-            author_name: r.name || r.customerName || 'Verified Customer',
-            date: r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent',
-            avatar: r.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-            rating: Number(r.rating) || 5,
-            comment: r.comment || r.body || '',
-          }));
-          setReviewsList(mapped);
-        }
-      } catch (e) {
-        console.error('Error fetching database reviews for Google widget:', e);
-      }
-    }
-    loadDbReviews();
+    fetch('/api/google-reviews')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: GoogleReviewsResponse | null) => {
+        if (data?.reviews?.length) setGoogle(data);
+      })
+      .catch((e) => console.error('Error fetching Google reviews:', e));
   }, []);
+
+  const reviewsList = google?.reviews ?? [];
+  const rating = google?.rating ?? 0;
+  const reviewsUrl = google?.mapsUrl || GOOGLE_REVIEWS_URL;
 
   const scroll = (direction: 'left' | 'right') => {
     if (sliderRef.current) {
@@ -141,19 +98,26 @@ export function GoogleReviewsTrustSection() {
         {/* ======================================================== */}
         {/* 1. GOOGLE REVIEW HEADER & SLIDER                         */}
         {/* ======================================================== */}
+        {google && (
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center space-y-1.5">
             <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
-              Excellent
+              {ratingLabel(rating)}
             </h3>
-            <div className="flex items-center justify-center gap-1 text-amber-400">
+            <div className="flex items-center justify-center gap-1 text-amber-400" aria-label={`Rated ${rating} out of 5`}>
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                <Star
+                  key={i}
+                  className={`w-5 h-5 ${i < Math.round(rating) ? 'fill-amber-400 text-amber-400' : 'text-zinc-300'}`}
+                />
               ))}
             </div>
             <p className="text-xs text-zinc-500 font-medium">
-              Based on <span className="font-bold text-zinc-800">{reviewsList.length > 0 ? reviewsList.length : 13} Reviews</span>
+              <span className="font-bold text-zinc-800">{rating.toFixed(1)}</span> · Based on{' '}
+              <a href={reviewsUrl} target="_blank" rel="noopener noreferrer" className="font-bold text-zinc-800 underline">
+                {google.totalReviews} Google Reviews
+              </a>
             </p>
             <div className="pt-0.5 flex justify-center">
               <GoogleLogoText />
@@ -189,14 +153,28 @@ export function GoogleReviewsTrustSection() {
                       {/* User Info + Google G Icon */}
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2.5">
-                          <img
-                            src={rev.avatar}
-                            alt={rev.author_name}
-                            className="w-9 h-9 rounded-full object-cover border border-zinc-300 shadow-xs"
-                          />
+                          {rev.avatar ? (
+                            <img
+                              src={rev.avatar}
+                              alt=""
+                              referrerPolicy="no-referrer"
+                              loading="lazy"
+                              className="w-9 h-9 rounded-full object-cover border border-zinc-300 shadow-xs"
+                            />
+                          ) : (
+                            <div className="w-9 h-9 rounded-full bg-zinc-200 border border-zinc-300 flex items-center justify-center text-xs font-bold text-zinc-600">
+                              {rev.author_name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
                           <div>
                             <h4 className="text-xs sm:text-[13px] font-bold text-zinc-900 leading-tight line-clamp-1">
-                              {rev.author_name}
+                              {rev.author_url ? (
+                                <a href={rev.author_url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                  {rev.author_name}
+                                </a>
+                              ) : (
+                                rev.author_name
+                              )}
                             </h4>
                             <p className="text-[11px] text-zinc-500">{rev.date}</p>
                           </div>
@@ -251,13 +229,18 @@ export function GoogleReviewsTrustSection() {
             </button>
           </div>
 
-          {/* Pagination Dots */}
-          <div className="flex justify-center items-center gap-1.5 pt-1">
-            <span className="w-2 h-2 rounded-full bg-zinc-700" />
-            <span className="w-2 h-2 rounded-full bg-zinc-300" />
-            <span className="w-2 h-2 rounded-full bg-zinc-300" />
+          <div className="flex justify-center pt-1">
+            <a
+              href={reviewsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-semibold text-zinc-600 hover:text-zinc-900 underline"
+            >
+              Read all reviews on Google
+            </a>
           </div>
         </div>
+        )}
 
         {/* ======================================================== */}
         {/* 2. SSL, ISO & PAYMENT METHODS BADGES STRIP               */}

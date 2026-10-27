@@ -7,13 +7,13 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fittrock.com';
 
 export const metadata: Metadata = {
   title: 'Warranty Policy & Claim Process',
-  description: '10-Year Structural Frame Warranty and 3-Year Motor & Electrical Warranty terms, coverage breakdown, and claim submission process.',
+  description: '3-Year Structural Frame Warranty and 1-Year Motor & Electrical Replacement Warranty terms, coverage breakdown, and claim submission process.',
   alternates: {
     canonical: `${siteUrl}/warranty`,
   },
   openGraph: {
     title: 'Warranty Policy & Claim Process | Fittrock Ergonomics LLP',
-    description: '10-Year Structural Frame Warranty and 3-Year Motor & Electrical Warranty terms for Fittrock standing desks.',
+    description: '3-Year Structural Frame Warranty and 1-Year Motor & Electrical Replacement Warranty terms for Fittrock standing desks.',
     url: `${siteUrl}/warranty`,
     type: 'website',
     siteName: 'Fittrock Ergonomics',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Warranty Policy | Fittrock Ergonomics',
-    description: '10-Year Structural Frame Warranty and 3-Year Electrical Warranty.',
+    description: '3-Year Structural Frame Warranty and 1-Year Electrical Replacement Warranty.',
     images: ['/og-image.png'],
   },
 };
@@ -54,7 +54,7 @@ export default function WarrantyPolicyPage() {
               <Hammer className="w-5 h-5" />
             </div>
             <p className="text-xs text-zinc-400 uppercase font-bold tracking-wider">Structural Strength</p>
-            <h3 className="text-2xl font-black text-white">10 Years</h3>
+            <h3 className="text-2xl font-black text-white">3 Years</h3>
             <p className="text-xs text-zinc-400">Steel columns, telescoping crossbars, base feet, and weld joints.</p>
           </div>
 
@@ -63,7 +63,7 @@ export default function WarrantyPolicyPage() {
               <Cpu className="w-5 h-5" />
             </div>
             <p className="text-xs text-zinc-400 uppercase font-bold tracking-wider">Motors &amp; Electronics</p>
-            <h3 className="text-2xl font-black text-white">3 Years</h3>
+            <h3 className="text-2xl font-black text-white">1 Year</h3>
             <p className="text-xs text-zinc-400">German-spec lifting motors, control boxes, memory keypads &amp; wiring.</p>
           </div>
 
@@ -88,8 +88,8 @@ export default function WarrantyPolicyPage() {
               FITTROCK ERGONOMICS LLP guarantees that all motorized standing desks, frames, and ergonomic furniture purchased directly from <Link href="/" className="text-emerald-400 hover:underline">fittrock.com</Link> or authorized official marketplace brand stores are free from manufacturing defects in materials and workmanship during the specified warranty term.
             </p>
             <ul className="list-disc pl-5 space-y-1.5 text-zinc-400">
-              <li><strong className="text-zinc-200">10-Year Frame Warranty:</strong> Covers cracking, structural weld failure, mechanical joint shearing, or failure of the telescoping steel rail under normal indoor home/office operation.</li>
-              <li><strong className="text-zinc-200">3-Year Motor &amp; Electrical Warranty:</strong> Covers motor drive failures, control board circuit malfunctions, electronic error codes (e.g. E01/E08/RST issues), memory handset buttons, and power transformers.</li>
+              <li><strong className="text-zinc-200">3-Year Frame Warranty:</strong> Covers cracking, structural weld failure, mechanical joint shearing, or failure of the telescoping steel rail under normal indoor home/office operation.</li>
+              <li><strong className="text-zinc-200">1-Year Motor &amp; Control Box Replacement Warranty:</strong> Covers motor drive failures, control board circuit malfunctions, electronic error codes (e.g. E01/E08/RST issues), memory handset buttons, and power transformers.</li>
               <li><strong className="text-zinc-200">2-Year Tabletop Warranty:</strong> Covers delamination or warping of engineered wood and solid wood tabletops under normal indoor conditions.</li>
             </ul>
           </section>
