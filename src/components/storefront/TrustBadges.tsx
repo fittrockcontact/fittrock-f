@@ -5,8 +5,8 @@ export function TrustBadges() {
   const badges = [
     {
       icon: ShieldCheck,
-      title: '10-Year Warranty',
-      description: 'Comprehensive warranty on steel frames & motors.',
+      title: '3-Year Warranty',
+      description: '3 years on steel frames, 1 year on motors & control boxes.',
     },
     {
       icon: Truck,
@@ -15,8 +15,8 @@ export function TrustBadges() {
     },
     {
       icon: RotateCcw,
-      title: '30-Day Trial',
-      description: 'Hassle-free 30-day return policy.',
+      title: '10-Day Trial',
+      description: 'Hassle-free 10-day return policy.',
     },
     {
       icon: Award,

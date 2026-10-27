@@ -92,7 +92,7 @@ const MEGA_MENUS: Record<string, MegaMenuConfig> = {
     featured: {
       badge: 'FLAGSHIP',
       title: 'Kuber Dual Motor Pro',
-      desc: 'Ultra-quiet dual motors (<42dB), 125kg loading, gyro anti-collision & 10-Year Warranty.',
+      desc: 'Ultra-quiet dual motors (<42dB), 125kg loading, gyro anti-collision & 3-Year Warranty.',
       href: '/products/kuber-d1-black',
       image: 'https://cdn.shopify.com/s/files/1/0748/4771/5577/files/Best_standing_desk_wooden_table_9158186c-4d9d-4a00-ba58-4e891278df0c.webp',
     },

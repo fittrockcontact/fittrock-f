@@ -27,19 +27,19 @@ export const faqsData: FAQItem[] = [
     category: 'shipping',
     question: 'Do you offer free delivery across India? How long does shipping take?',
     answer:
-      'Yes! All motorized standing desks qualify for 100% Free Express Shipping across 19,000+ pin codes. Orders are dispatched from our Pune manufacturing facility within 24 hours. Metros receive delivery in 3 to 5 business days, while other locations take 5 to 7 days.',
+      'Yes! All motorized standing desks qualify for 100% Free Express Shipping across 19,000+ pin codes. Orders are dispatched from our Pune manufacturing facility within 24 hours. Delivery takes 5 to 7 days across India.',
   },
   {
     category: 'warranty',
-    question: 'What does the 3-Year Motor and 10-Year Frame Warranty cover?',
+    question: 'What does the 3-Year Frame and 1-Year Motor Warranty cover?',
     answer:
-      'Our 10-Year Frame Warranty covers all structural cold-rolled steel columns, legs, and feet against bending or weld failure. The 3-Year Electrical Warranty covers motors, control box circuit boards, power transformers, and the LED digital memory handset.',
+      'Our 3-Year Frame Warranty covers all structural cold-rolled steel columns, legs, and feet against bending or weld failure. The 1-Year Electrical Replacement Warranty covers motors, control box circuit boards, power transformers, and the LED digital memory handset.',
   },
   {
     category: 'shipping',
-    question: 'What is your 30-Day Trial & Return Policy?',
+    question: 'What is your 10-Day Trial & Return Policy?',
     answer:
-      'We offer a 30-Day Risk-Free Trial. If you are not satisfied with your ergonomic standing desk, contact us within 30 days of delivery. We will arrange a doorstep reverse pickup and refund your purchase amount back to your original bank/UPI account.',
+      'We offer a 10-Day Risk-Free Trial. If you are not satisfied with your ergonomic standing desk, contact us within 10 days of delivery. We will arrange a doorstep reverse pickup and refund your purchase amount back to your original bank/UPI account.',
   },
   {
     category: 'desks',

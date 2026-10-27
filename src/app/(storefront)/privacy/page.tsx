@@ -62,7 +62,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-5 space-y-1.5 text-zinc-400">
               <li>Processing, manufacturing, and delivering your custom motorized standing desk orders across India.</li>
               <li>Sending transactional SMS, WhatsApp dispatch notifications, tracking links, and digital GST invoices.</li>
-              <li>Providing 3-year motor and 10-year frame warranty verification and after-sales support.</li>
+              <li>Providing 1-year motor and 3-year frame warranty verification and after-sales support.</li>
               <li>Facilitating scheduled video installation assistance or technician visits in eligible metro areas.</li>
               <li>Complying with statutory accounting and tax regulations mandated by Indian authorities.</li>
             </ul>
@@ -92,7 +92,7 @@ export default function PrivacyPage() {
               We implement industry-standard 256-bit SSL encryption, restricted role-based database access, and secure tokenization to protect your personal information against unauthorized access, alteration, or disclosure.
             </p>
             <p>
-              Personal data is retained only for as long as necessary to fulfill the warranty lifecycle (up to 10 years for structural frame warranties) or as prescribed under applicable Indian tax and corporate laws.
+              Personal data is retained only for as long as necessary to fulfill the warranty lifecycle (up to 3 years for structural frame warranties) or as prescribed under applicable Indian tax and corporate laws.
             </p>
           </section>
 

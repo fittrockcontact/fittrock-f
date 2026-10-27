@@ -486,7 +486,7 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
                 <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 space-y-1">
                   <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Warranty & Support</p>
                   <p className="text-sm font-bold text-zinc-900">
-                    {product.warrantyMonths ? `${Math.round(Number(product.warrantyMonths) / 12)} Years Warranty` : '10-Year Warranty'}
+                    {product.warrantyMonths ? `${Math.round(Number(product.warrantyMonths) / 12)} Years Warranty` : '3-Year Warranty'}
                   </p>
                   <p className="text-xs text-zinc-500">Comprehensive coverage on frame structure & motors</p>
                 </div>
@@ -652,12 +652,12 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
               </div>
               <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3 text-center space-y-1">
                 <ShieldCheck className="w-5 h-5 text-amber-600 mx-auto" />
-                <p className="text-[11px] font-bold text-zinc-900">10-Year Warranty</p>
+                <p className="text-[11px] font-bold text-zinc-900">3-Year Warranty</p>
                 <p className="text-[10px] text-zinc-500">Frame & motors</p>
               </div>
               <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3 text-center space-y-1">
                 <RotateCcw className="w-5 h-5 text-amber-600 mx-auto" />
-                <p className="text-[11px] font-bold text-zinc-900">30-Day Trial</p>
+                <p className="text-[11px] font-bold text-zinc-900">10-Day Trial</p>
                 <p className="text-[10px] text-zinc-500">Risk-free return</p>
               </div>
             </div>
@@ -691,7 +691,7 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
                 </button>
                 {openSection === 'warranty' && (
                   <div className="px-5 py-4 text-xs text-zinc-600 space-y-2 bg-white">
-                    <p>Includes full 10-Year Warranty covering steel frame structure and electric motors.</p>
+                    <p>Includes a 3-Year Structural Warranty on the steel frame and a 1-Year Replacement Warranty on motors and control boxes.</p>
                   </div>
                 )}
               </div>

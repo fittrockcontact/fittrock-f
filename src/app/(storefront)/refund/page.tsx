@@ -5,7 +5,7 @@ import { RefreshCw, Clock, CreditCard, CheckCircle2, AlertTriangle } from 'lucid
 
 export const metadata: Metadata = {
   title: 'Refund & Cancellation Policy | Fittrock Ergonomics LLP',
-  description: 'Understand Fittrock’s order cancellation timelines, refund processing via Razorpay, and 30-day money-back satisfaction guarantee terms.',
+  description: 'Understand Fittrock’s order cancellation timelines, refund processing via Razorpay, and 10-day money-back satisfaction guarantee terms.',
 };
 
 export default function RefundPage() {
@@ -18,7 +18,7 @@ export default function RefundPage() {
         <div className="space-y-4 border-b border-zinc-800 pb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-semibold text-zinc-300">
             <RefreshCw className="w-3.5 h-3.5 text-blue-400" />
-            <span>30-Day Risk-Free Guarantee &amp; Cancellation Terms</span>
+            <span>10-Day Risk-Free Guarantee &amp; Cancellation Terms</span>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
             Refund &amp; Cancellation Policy
@@ -37,8 +37,8 @@ export default function RefundPage() {
           </div>
           <div className="p-4 rounded-2xl bg-zinc-900/70 border border-zinc-800 space-y-1">
             <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-            <h3 className="font-bold text-white text-sm">30-Day Trial Guarantee</h3>
-            <p className="text-xs text-zinc-400">Try your desk for 30 days. Not satisfied? Return hassle-free.</p>
+            <h3 className="font-bold text-white text-sm">10-Day Trial Guarantee</h3>
+            <p className="text-xs text-zinc-400">Try your desk for 10 days. Not satisfied? Return hassle-free.</p>
           </div>
           <div className="p-4 rounded-2xl bg-zinc-900/70 border border-zinc-800 space-y-1">
             <CreditCard className="w-5 h-5 text-purple-400" />
@@ -67,7 +67,7 @@ export default function RefundPage() {
           {/* Section 2 */}
           <section className="space-y-3">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <span className="text-blue-400 font-mono text-sm">02.</span> 30-Day Money-Back Guarantee
+              <span className="text-blue-400 font-mono text-sm">02.</span> 10-Day Money-Back Guarantee
             </h2>
             <p>
               We want you to experience genuine ergonomic comfort with zero hesitation. If you are not completely thrilled with your Fittrock motorized standing desk or chair within <strong>30 calendar days</strong> of delivery:
@@ -131,7 +131,7 @@ export default function RefundPage() {
             <ul className="list-disc pl-5 space-y-1.5 text-zinc-400">
               <li>Damage caused by customer mishandling, electrical short circuits exceeding 240V without surge protection, or DIY drill modifications not matching instruction manuals.</li>
               <li>Products returned with missing core components (e.g. control box, handset, AC adapter).</li>
-              <li>Requests initiated after the expiry of the 30-day trial window (post 30 days, issues are covered under our <strong>3-Year / 10-Year Warranty</strong>).</li>
+              <li>Requests initiated after the expiry of the 10-day trial window (after 10 days, issues are covered under our <strong>3-Year Structural / 1-Year Motor Warranty</strong>).</li>
             </ul>
           </section>
         </div>

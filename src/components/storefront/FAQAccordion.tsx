@@ -25,12 +25,12 @@ export function FAQAccordion() {
     {
       question: 'How long does shipping take and is assembly included?',
       answer:
-        'We offer free express delivery within 3-5 business days across India. Desks come with a pre-wired control box and numbered assembly guide. Toolkits and screws are included.',
+        'We offer free express delivery within 5-7 days across India. Desks come with a pre-wired control box and numbered assembly guide. Toolkits and screws are included.',
     },
     {
       question: 'What warranty coverage is included?',
       answer:
-        'Every Fittrock desk frame is backed by our industry-leading 10-Year Structural Warranty, and electric motors/control boxes are covered by a 5-Year Replacement Warranty.',
+        'Every Fittrock desk frame is backed by a 3-Year Structural Warranty, and electric motors/control boxes are covered by a 1-Year Replacement Warranty.',
     },
   ];
 

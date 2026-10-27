@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Return & Exchange Policy | Fittrock Ergonomics LLP',
-    description: '30-Day Risk-Free Trial, doorstep reverse pickup, and replacement policies for Fittrock standing desks.',
+    description: '10-Day Risk-Free Trial, doorstep reverse pickup, and replacement policies for Fittrock standing desks.',
     url: `${siteUrl}/returns`,
     type: 'website',
     siteName: 'Fittrock Ergonomics',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Return & Exchange Policy | Fittrock Ergonomics',
-    description: '30-Day Risk-Free Trial with doorstep reverse pickup across India.',
+    description: '10-Day Risk-Free Trial with doorstep reverse pickup across India.',
     images: ['/og-image.png'],
   },
 };
@@ -100,11 +100,11 @@ export default function ReturnsPage() {
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <span className="text-indigo-400 font-mono text-sm">03.</span> Condition Requirements for Returns
             </h2>
-            <p>To ensure eligibility for a full return under our 30-Day Trial Guarantee:</p>
+            <p>To ensure eligibility for a full return under our 10-Day Trial Guarantee:</p>
             <ul className="list-disc pl-5 space-y-1.5 text-zinc-400">
               <li>Product must be in good working condition without severe gouges, intentional wood breakage, or customer drill damage.</li>
               <li>All original accessories (Allen keys, cable clips, power adapter, controller keypad) must be packed into the box.</li>
-              <li>Please retain the original packaging boxes for the duration of the 30-day trial period.</li>
+              <li>Please retain the original packaging boxes for the duration of the 10-day trial period.</li>
             </ul>
           </section>
 

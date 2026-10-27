@@ -8,7 +8,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fittrock.com';
 export const metadata: Metadata = {
   title: 'Frequently Asked Questions (FAQ) | Fittrock Ergonomics',
   description:
-    'Got questions about Fittrock standing desks? Learn about dual vs single motors, whisper-quiet operation, 10-year warranty, 30-day trial, and free Pan-India delivery.',
+    'Got questions about Fittrock standing desks? Learn about dual vs single motors, whisper-quiet operation, 3-year warranty, 10-day trial, and free Pan-India delivery.',
   alternates: {
     canonical: `${siteUrl}/faq`,
   },
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Fittrock Ergonomics FAQ',
-    description: 'Learn about dual vs single motors, assembly, 10-year warranty, and shipping timelines.',
+    description: 'Learn about dual vs single motors, assembly, 3-year warranty, and shipping timelines.',
     images: ['/og-image.png'],
   },
 };

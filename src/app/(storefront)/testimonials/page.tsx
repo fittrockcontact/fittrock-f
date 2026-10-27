@@ -174,7 +174,7 @@ export default async function TestimonialsPage() {
             <div className="flex justify-center text-amber-400 mb-1">
               <ShieldCheck className="w-5 h-5" />
             </div>
-            <p className="text-2xl sm:text-3xl font-black">10-Year</p>
+            <p className="text-2xl sm:text-3xl font-black">3-Year</p>
             <p className="text-xs text-zinc-400 font-medium">Frame & Motor Warranty</p>
           </div>
 
@@ -182,7 +182,7 @@ export default async function TestimonialsPage() {
             <div className="flex justify-center text-blue-400 mb-1">
               <ThumbsUp className="w-5 h-5" />
             </div>
-            <p className="text-2xl sm:text-3xl font-black">30-Day</p>
+            <p className="text-2xl sm:text-3xl font-black">10-Day</p>
             <p className="text-xs text-zinc-400 font-medium">Risk-Free Home Trial</p>
           </div>
         </div>
@@ -217,7 +217,7 @@ export default async function TestimonialsPage() {
             Ready to Elevate Your Daily Work Routine?
           </h3>
           <p className="text-zinc-600 text-xs sm:text-sm max-w-xl mx-auto">
-            Experience dual-motor whisper-quiet transitions, solid wood tabletops, and precision ergonomics backed by a 10-Year Warranty.
+            Experience dual-motor whisper-quiet transitions, solid wood tabletops, and precision ergonomics backed by a 3-Year Warranty.
           </p>
           <div className="pt-2">
             <Link
