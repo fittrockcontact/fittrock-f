@@ -1,12 +1,74 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ShoppingCart, Star, ShieldCheck, Truck, RotateCcw, Check, Plus, Minus, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  ShoppingCart,
+  Star,
+  ShieldCheck,
+  Truck,
+  RotateCcw,
+  Check,
+  Plus,
+  Minus,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronRight as Crumb,
+  Zap,
+  Wrench,
+  FileText,
+  Building2,
+  Clock,
+} from 'lucide-react';
+import { formatPrice, cn } from '@/lib/utils';
 import { useCartStore } from '@/store/use-cart-store';
 import { toast } from 'sonner';
 import { ProductFeatureShowcase, FeatureShowcaseItem } from '@/components/storefront/ProductFeatureShowcase';
 import { ReviewCard, ReviewItem } from '@/components/storefront/ReviewCard';
+import { faqsData } from '@/lib/faq-data';
+
+// Swatch colours for common frame / tabletop colour names. Unknown names fall back to a neutral chip.
+const SWATCH_HEX: Record<string, string> = {
+  black: '#1f1f1f',
+  'matte black': '#1f1f1f',
+  white: '#f5f5f4',
+  'pure white': '#f5f5f4',
+  grey: '#8a8a8a',
+  gray: '#8a8a8a',
+  silver: '#c0c0c0',
+  walnut: '#5d3a1a',
+  oak: '#c8a165',
+  teak: '#9a6b3c',
+  maple: '#e3c597',
+  wenge: '#3b2a20',
+  brown: '#6b4423',
+  beige: '#d9c7a7',
+  'rustic wood': '#8b5a2b',
+};
+
+function swatchFor(name: string): string | null {
+  const key = name.toLowerCase().trim();
+  if (SWATCH_HEX[key]) return SWATCH_HEX[key];
+  const partial = Object.keys(SWATCH_HEX).find((k) => key.includes(k));
+  return partial ? SWATCH_HEX[partial] : null;
+}
+
+const SECTIONS = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'specifications', label: 'Specifications' },
+  { id: 'reviews', label: 'Reviews' },
+  { id: 'faqs', label: 'FAQs' },
+] as const;
+
+function addBusinessDays(from: Date, days: number) {
+  const d = new Date(from);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+const fmtDay = (d: Date) => d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 
 export interface ProductDetailProps {
   product: {
@@ -85,9 +147,6 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
   // Group unique colors & sizes across variants
   const availableColors = Array.from(new Set(safeVariants.map((v) => v.color).filter(Boolean))) as string[];
   const availableSizes = Array.from(new Set(safeVariants.map((v) => v.size).filter(Boolean))) as string[];
-
-  // Accordion state (Right sidebar)
-  const [openSection, setOpenSection] = useState<'shipping' | 'warranty' | null>(null);
 
   const addItem = useCartStore((s) => s.addItem);
 
@@ -362,379 +421,671 @@ export function ProductDetailClient({ product }: ProductDetailProps) {
       : '') ||
     'Premium ergonomic height-adjustable workstation designed for superior posture comfort, stability, and durability.';
 
-  return (
-    <div className="py-12 bg-white text-zinc-900 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-20">
-          {/* Left Column: Image Gallery with Side Thumbnail Bar */}
-          <div className="lg:col-span-7">
-            <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 items-start">
-              {/* Vertical Side Thumbnail Bar (Left Side) */}
-              {images.length > 1 && (
-                <div className="flex sm:flex-col gap-2.5 sm:gap-3 overflow-x-auto sm:overflow-y-auto max-h-[500px] sm:max-h-[580px] lg:max-h-[640px] scrollbar-thin scrollbar-thumb-zinc-300 pr-1.5 shrink-0 w-full sm:w-auto">
-                  {images.map((img, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedImageIndex(idx)}
-                      className={`relative w-16 h-16 sm:w-18 sm:h-18 lg:w-20 lg:h-20 rounded-xl sm:rounded-2xl overflow-hidden border-2 bg-zinc-50 shrink-0 transition-all cursor-pointer ${
-                        selectedImageIndex === idx
-                          ? 'border-zinc-900 ring-2 ring-zinc-900/20 shadow-md scale-[0.98]'
-                          : 'border-zinc-200/90 opacity-70 hover:opacity-100 hover:border-zinc-400'
-                      }`}
-                    >
-                      <img src={img} alt={`${product.name} preview ${idx + 1}`} className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
+  const router = useRouter();
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [activeSection, setActiveSection] = useState<string>('overview');
+  const [showStickyBar, setShowStickyBar] = useState(false);
+  const ctaRef = useRef<HTMLDivElement>(null);
 
-              {/* Main Image Preview Container (Right Side) */}
-              <div className="relative flex-1 aspect-4/3 sm:aspect-square rounded-3xl overflow-hidden bg-zinc-50 border border-zinc-200 group shadow-xl">
+  // Show the compact sticky purchase bar once the main Add-to-Cart block scrolls out of view.
+  useEffect(() => {
+    const el = ctaRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setShowStickyBar(!entry.isIntersecting && entry.boundingClientRect.top < 0),
+      { threshold: 0 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // Highlight the section tab currently in view.
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) setActiveSection(e.target.id);
+        });
+      },
+      { rootMargin: '-45% 0px -50% 0px' }
+    );
+    SECTIONS.forEach((s) => {
+      const node = document.getElementById(s.id);
+      if (node) obs.observe(node);
+    });
+    return () => obs.disconnect();
+  }, []);
+
+  const handleBuyNow = () => {
+    if (!selectedVariant || isOutOfStock) return;
+    handleAddToCart();
+    router.push('/checkout');
+  };
+
+  // Derived product facts (same sources and fallbacks the page has always used)
+  const isDual = product.motorType === 'dual';
+  const isSingle = product.motorType === 'single';
+  const motorLabel = isSingle
+    ? 'Single Motor Electric Lift'
+    : isDual
+    ? 'Dual-Motor Synchronized Lift'
+    : null;
+  const loadLabel = product.weightCapacityKg
+    ? `${product.weightCapacityKg} kg`
+    : isSingle
+    ? '100 kg'
+    : '125 kg';
+  const heightLabel = product.heightRangeMm || (isSingle ? '710mm - 1190mm' : '620mm - 1270mm');
+  const warrantyYears = product.warrantyMonths ? Math.round(Number(product.warrantyMonths) / 12) : 3;
+
+  const keyPoints = [
+    motorLabel ? `${motorLabel}, whisper-quiet under 42 dB` : null,
+    `${loadLabel} maximum load capacity`,
+    `${heightLabel} height range with 4 memory presets`,
+    `${warrantyYears}-Year frame warranty, 1-Year motor warranty`,
+  ].filter(Boolean) as string[];
+
+  const discountPct =
+    compareAtPrice && compareAtPrice > price ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100) : 0;
+
+  // Price for a size option at the currently selected colour, used on the size cards.
+  const priceForSize = (size: string) => {
+    const v =
+      safeVariants.find((x) => x.size === size && x.color === selectedVariant?.color) ||
+      safeVariants.find((x) => x.size === size);
+    return v ? parseFloat(v.price) : null;
+  };
+
+  const today = new Date();
+  const deliveryFrom = fmtDay(addBusinessDays(today, 5));
+  const deliveryTo = fmtDay(addBusinessDays(today, 7));
+
+  const specGroups: Array<{ title: string; rows: Array<[string, string]> }> = [
+    {
+      title: 'General',
+      rows: [
+        ['Model', product.name],
+        ['SKU', selectedVariant?.sku || product.slug],
+        ['Brand', product.brand || 'Fittrock'],
+        ['Assembly', 'Self-assembly (DIY)'],
+        ['Average Assembly Time', '15 – 20 minutes'],
+        ['Warranty', `${warrantyYears}-Year frame (structural), 1-Year motor & electronics`],
+        ['Returns', '10-Day risk-free trial with doorstep reverse pickup'],
+      ],
+    },
+    {
+      title: 'Frame',
+      rows: [
+        ...(motorLabel ? ([['Motor Type', motorLabel]] as Array<[string, string]>) : []),
+        ['Lifting Capacity', loadLabel],
+        ['Height Range', heightLabel],
+        ['Noise Level', '< 42 dB'],
+        ['Memory Presets', '4 presets with LED digital height display'],
+        ['Anti-Collision', '6-axis gyro sensor, auto-reverse on contact'],
+        ['Material', 'Cold-rolled carbon steel, powder-coated'],
+        ...(selectedVariant?.color ? ([['Frame Color', selectedVariant.color]] as Array<[string, string]>) : []),
+      ],
+    },
+    ...(selectedVariant?.size && selectedVariant.size !== 'Standard'
+      ? [{ title: 'Tabletop', rows: [['Size', selectedVariant.size]] as Array<[string, string]> }]
+      : []),
+  ];
+
+  const productFaqs = faqsData.filter((f) => f.category !== 'desks' || /custom tabletop|GST/i.test(f.question));
+
+  // Rating histogram from real reviews
+  const ratingBuckets = [5, 4, 3, 2, 1].map((star) => {
+    const count = reviewsList.filter((r) => Math.round(Number(r.rating) || 5) === star).length;
+    return { star, count, pct: reviewsCount ? Math.round((count / reviewsCount) * 100) : 0 };
+  });
+
+  const scrollTo = (id: string) => {
+    const node = document.getElementById(id);
+    if (!node) return;
+    const y = node.getBoundingClientRect().top + window.scrollY - 140;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  };
+
+  return (
+    <div className="bg-white text-zinc-900 min-h-screen pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumb (mirrors BreadcrumbList structured data) */}
+        <nav aria-label="Breadcrumb" className="pt-5 pb-4 text-xs text-zinc-500">
+          <ol className="flex flex-wrap items-center gap-1.5">
+            <li>
+              <Link href="/" className="hover:text-zinc-900">Home</Link>
+            </li>
+            <Crumb className="w-3 h-3" aria-hidden="true" />
+            <li>
+              <Link href="/collections/standing-desks" className="hover:text-zinc-900">Standing Desks</Link>
+            </li>
+            <Crumb className="w-3 h-3" aria-hidden="true" />
+            <li aria-current="page" className="text-zinc-900 font-semibold truncate max-w-[60vw]">
+              {product.name}
+            </li>
+          </ol>
+        </nav>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          {/* ───────── Left: gallery ───────── */}
+          <div className="lg:col-span-7">
+            <div className="lg:sticky lg:top-24 space-y-3">
+              <div className="relative aspect-square rounded-2xl overflow-hidden bg-zinc-50 border border-zinc-200 group">
                 <img
                   src={currentImage}
-                  alt={product.name}
+                  alt={`${product.name}${selectedVariant?.color ? ` in ${selectedVariant.color}` : ''}`}
                   className="w-full h-full object-cover transition-opacity duration-300"
                 />
 
-                {/* Stock Badge on Top Left */}
-                <div className="absolute top-4 left-4 z-10">
-                  {isOutOfStock ? (
-                    <span className="bg-red-100 text-red-700 border border-red-200 font-bold px-3 py-1 rounded-lg text-xs uppercase tracking-wider shadow-sm">
-                      Sold Out
-                    </span>
-                  ) : variantStock <= 5 ? (
-                    <span className="bg-amber-100 text-amber-800 border border-amber-200 font-bold px-3 py-1 rounded-lg text-xs uppercase tracking-wider shadow-sm">
-                      Only {variantStock} Left in Stock
-                    </span>
-                  ) : (
-                    <span className="bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold px-3 py-1 rounded-lg text-xs uppercase tracking-wider shadow-sm">
-                      In Stock • Ships in 24 Hours
-                    </span>
-                  )}
-                </div>
+                {discountPct > 0 && (
+                  <span className="absolute top-4 left-4 bg-red-600 text-white text-xs font-black px-2.5 py-1 rounded-md shadow">
+                    {discountPct}% OFF
+                  </span>
+                )}
 
-                {/* Next & Previous Arrow Controls */}
                 {images.length > 1 && (
                   <>
                     <button
                       onClick={handlePrevImage}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-amber-500 text-zinc-800 hover:text-zinc-950 border border-zinc-200 hover:border-amber-400 flex items-center justify-center transition-all opacity-80 group-hover:opacity-100 shadow-md z-20"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-zinc-800 border border-zinc-200 flex items-center justify-center shadow-md opacity-90 hover:opacity-100 hover:bg-white"
                       aria-label="Previous image"
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
                     <button
                       onClick={handleNextImage}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-amber-500 text-zinc-800 hover:text-zinc-950 border border-zinc-200 hover:border-amber-400 flex items-center justify-center transition-all opacity-80 group-hover:opacity-100 shadow-md z-20"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-zinc-800 border border-zinc-200 flex items-center justify-center shadow-md opacity-90 hover:opacity-100 hover:bg-white"
                       aria-label="Next image"
                     >
                       <ChevronRight className="w-5 h-5" />
                     </button>
+                    <span className="absolute bottom-3 right-3 bg-black/60 text-white text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                      {selectedImageIndex + 1} / {images.length}
+                    </span>
                   </>
                 )}
               </div>
-            </div>
 
-            {/* 1. Technical Specifications Section (Below Image) */}
-            <div className="mt-10 pt-8 border-t border-zinc-200 space-y-5">
-              <div className="flex items-center gap-2.5">
-                <span className="h-5 w-1.5 bg-amber-500 rounded-full" />
-                <h2 className="text-xl font-black text-zinc-900 tracking-tight">Technical Specifications</h2>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 space-y-1">
-                  <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Motor Drive System</p>
-                  <p className="text-sm font-bold text-zinc-900">
-                    {product.motorType === 'single'
-                      ? 'Single Motor Electric Lift (<42dB)'
-                      : product.motorType === 'dual'
-                      ? 'Dual-Motor Synchronized Lift (<42dB)'
-                      : 'Ergonomic Desk Component'}
-                  </p>
-                  <p className="text-xs text-zinc-500">Ultra-quiet, smooth motorized height transition</p>
+              {images.length > 1 && (
+                <div className="flex gap-2.5 overflow-x-auto pb-1">
+                  {images.map((img, idx) => (
+                    <button
+                      key={img + idx}
+                      onClick={() => setSelectedImageIndex(idx)}
+                      aria-label={`Show image ${idx + 1}`}
+                      aria-current={selectedImageIndex === idx}
+                      className={cn(
+                        'relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 bg-zinc-50 shrink-0 transition-all',
+                        selectedImageIndex === idx
+                          ? 'border-zinc-900'
+                          : 'border-transparent opacity-70 hover:opacity-100'
+                      )}
+                    >
+                      <img
+                        src={img}
+                        alt={`${product.name} view ${idx + 1}`}
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
                 </div>
-
-                <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 space-y-1">
-                  <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Load & Weight Capacity</p>
-                  <p className="text-sm font-bold text-zinc-900">
-                    {product.weightCapacityKg ? `${product.weightCapacityKg} kg` : (product.motorType === 'single' ? '100 kg' : '125 kg')} Maximum Load
-                  </p>
-                  <p className="text-xs text-zinc-500">Engineered for heavy multi-monitor workstations</p>
-                </div>
-
-                <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 space-y-1">
-                  <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Height Adjustment Range</p>
-                  <p className="text-sm font-bold text-zinc-900">
-                    {product.heightRangeMm || (product.motorType === 'single' ? '710mm - 1190mm' : '620mm - 1270mm')}
-                  </p>
-                  <p className="text-xs text-zinc-500">4 Memory height presets with LED digital readout</p>
-                </div>
-
-                <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 space-y-1">
-                  <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Frame Material & Build</p>
-                  <p className="text-sm font-bold text-zinc-900">Cold-Rolled Carbon Steel</p>
-                  <p className="text-xs text-zinc-500">Anti-scratch powder-coated dual-beam base</p>
-                </div>
-
-                <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 space-y-1">
-                  <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Safety & Anti-Collision</p>
-                  <p className="text-sm font-bold text-zinc-900">6-Axis Gyro Sensor</p>
-                  <p className="text-xs text-zinc-500">Auto-reverses immediately upon obstacle contact</p>
-                </div>
-
-                <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 space-y-1">
-                  <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Warranty & Support</p>
-                  <p className="text-sm font-bold text-zinc-900">
-                    {product.warrantyMonths ? `${Math.round(Number(product.warrantyMonths) / 12)} Years Warranty` : '3-Year Warranty'}
-                  </p>
-                  <p className="text-xs text-zinc-500">Comprehensive coverage on frame structure & motors</p>
-                </div>
-              </div>
-            </div>
-
-            {/* 2. Product Overview & Details Section (Below Technical Specifications) */}
-            <div className="mt-10 pt-8 border-t border-zinc-200 space-y-5">
-              <div className="flex items-center gap-2.5">
-                <span className="h-5 w-1.5 bg-amber-500 rounded-full" />
-                <h2 className="text-xl font-black text-zinc-900 tracking-tight">Product Overview & Details</h2>
-              </div>
-
-              <div className="bg-zinc-50/70 border border-zinc-200/80 rounded-3xl p-6 sm:p-8">
-                {formattedDescription && formattedDescription.includes('<') ? (
-                  <div
-                    className="product-description-content max-w-none text-sm text-zinc-700 leading-relaxed space-y-4"
-                    dangerouslySetInnerHTML={{ __html: formattedDescription }}
-                  />
-                ) : (
-                  <p className="text-sm text-zinc-700 leading-relaxed whitespace-pre-line">
-                    {formattedDescription || heroSummary}
-                  </p>
-                )}
-              </div>
+              )}
             </div>
           </div>
 
-          {/* Right Column: Product Details & Variant Selectors */}
-          <div className="lg:col-span-5 space-y-8">
-            {/* Title & Rating */}
+          {/* ───────── Right: buy box ───────── */}
+          <div className="lg:col-span-5 space-y-6">
+            {/* Title block */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2 text-amber-600 text-sm font-semibold">
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-                <span>{avgRating} ({reviewsCount} {reviewsCount === 1 ? 'review' : 'reviews'})</span>
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-zinc-900">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">
+                Model: {selectedVariant?.sku || product.slug}
+              </p>
+              <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-zinc-900 leading-tight">
                 {product.name}
               </h1>
-              <p className="text-zinc-600 text-sm leading-relaxed">{heroSummary}</p>
-            </div>
+              <p className="text-zinc-600 text-sm leading-relaxed line-clamp-3">{heroSummary}</p>
 
-            {/* Price Display */}
-            <div className="flex items-baseline gap-3 border-y border-zinc-200 py-4">
-              <span className="text-3xl sm:text-4xl font-black text-amber-700">
-                {formatPrice(price)}
-              </span>
-              {compareAtPrice && compareAtPrice > price && (
-                <span className="text-lg text-zinc-400 line-through">
-                  {formatPrice(compareAtPrice)}
+              <ul className="space-y-1.5 pt-1">
+                {keyPoints.map((pt) => (
+                  <li key={pt} className="flex items-start gap-2 text-sm text-zinc-800">
+                    <Check className="w-4 h-4 mt-0.5 text-emerald-600 shrink-0" />
+                    <span>{pt}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                onClick={() => scrollTo('reviews')}
+                className="flex items-center gap-2 text-sm font-semibold text-zinc-700 hover:text-zinc-900"
+              >
+                <span className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={cn(
+                        'w-4 h-4',
+                        i < Math.round(Number(avgRating)) ? 'fill-amber-400 text-amber-400' : 'text-zinc-300'
+                      )}
+                    />
+                  ))}
                 </span>
-              )}
+                {reviewsCount > 0 ? (
+                  <span className="underline underline-offset-2">
+                    {avgRating} ({reviewsCount} {reviewsCount === 1 ? 'Review' : 'Reviews'})
+                  </span>
+                ) : (
+                  <span className="underline underline-offset-2">Be the first to review</span>
+                )}
+              </button>
             </div>
 
-            {/* Color Selector */}
-            {availableColors.length > 0 && (
-              <div className="space-y-3">
-                <label className="text-xs font-bold uppercase tracking-wider text-zinc-600">
-                  Frame Color: <span className="text-zinc-900">{selectedVariant?.color || 'Standard'}</span>
-                </label>
+            {/* Price block */}
+            <div className="border-y border-zinc-200 py-4 space-y-1.5">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-3xl sm:text-4xl font-black text-zinc-900">{formatPrice(price)}</span>
+                {discountPct > 0 && compareAtPrice && (
+                  <>
+                    <span className="text-lg text-zinc-400 line-through">{formatPrice(compareAtPrice)}</span>
+                    <span className="bg-red-50 text-red-700 border border-red-200 text-xs font-black px-2 py-0.5 rounded">
+                      {discountPct}% OFF
+                    </span>
+                  </>
+                )}
+              </div>
+              <p className="text-xs text-zinc-500">
+                Inclusive of 18% GST
+                {discountPct > 0 && compareAtPrice && (
+                  <span className="ml-2 font-semibold text-emerald-700">
+                    You save {formatPrice(compareAtPrice - price)}
+                  </span>
+                )}
+              </p>
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
+                <Clock className="w-3.5 h-3.5" />
+                {isOutOfStock
+                  ? 'Currently sold out'
+                  : variantStock <= 5
+                  ? `Only ${variantStock} left in stock. Dispatched within 24 hours`
+                  : 'In stock. Dispatched within 24 hours'}
+              </p>
+            </div>
+
+            {/* Frame colour swatches */}
+            {availableColors.length > 0 && !(availableColors.length === 1 && availableColors[0] === 'Default Color') && (
+              <fieldset className="space-y-3">
+                <legend className="text-sm font-bold text-zinc-900 mb-3">
+                  Frame Color: <span className="font-normal text-zinc-600">{selectedVariant?.color}</span>
+                </legend>
                 <div className="flex flex-wrap gap-3">
                   {availableColors.map((color) => {
                     const isSelected = selectedVariant?.color === color;
                     const isAvailable = checkColorAvailable(color);
+                    const hex = swatchFor(color);
                     return (
                       <button
                         key={color}
-                        disabled={!isAvailable}
+                        type="button"
                         onClick={() => handleColorChange(color)}
-                        className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all ${
-                          isSelected
-                            ? 'bg-amber-500 text-zinc-950 border-amber-400 shadow-md'
-                            : !isAvailable
-                            ? 'bg-zinc-100 border-zinc-200 text-zinc-400 opacity-40 cursor-not-allowed line-through'
-                            : 'bg-zinc-50 border-zinc-200 text-zinc-800 hover:border-zinc-300'
-                        }`}
+                        aria-label={`${color}${isAvailable ? '' : ' (unavailable in this size)'}`}
+                        aria-pressed={isSelected}
+                        title={color}
+                        className={cn(
+                          'relative w-11 h-11 rounded-full p-0.5 border-2 transition-all',
+                          isSelected ? 'border-zinc-900' : 'border-transparent hover:border-zinc-300',
+                          !isAvailable && 'opacity-40'
+                        )}
                       >
-                        {color}
-                        {!isAvailable && <span className="ml-1 text-[10px] no-underline">(N/A)</span>}
+                        <span
+                          className="block w-full h-full rounded-full border border-zinc-300"
+                          style={{ background: hex || '#e4e4e7' }}
+                        >
+                          {!hex && (
+                            <span className="flex h-full items-center justify-center text-[10px] font-bold text-zinc-700">
+                              {color.slice(0, 2).toUpperCase()}
+                            </span>
+                          )}
+                        </span>
+                        {!isAvailable && (
+                          <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+                            <span className="block w-full h-0.5 bg-zinc-500 rotate-45" />
+                          </span>
+                        )}
                       </button>
                     );
                   })}
                 </div>
-              </div>
+              </fieldset>
             )}
 
-            {/* Size Selector */}
-            {availableSizes.length > 0 && (
-              <div className="space-y-3">
-                <label className="text-xs font-bold uppercase tracking-wider text-zinc-600">
-                  Product Dimensions / Size: <span className="text-zinc-900">{selectedVariant?.size || 'Standard'}</span>
-                </label>
-                <div className="flex flex-wrap gap-3">
+            {/* Size option cards */}
+            {availableSizes.length > 0 && !(availableSizes.length === 1 && availableSizes[0] === 'Standard') && (
+              <fieldset>
+                <legend className="text-sm font-bold text-zinc-900 mb-3">
+                  Tabletop Size: <span className="font-normal text-zinc-600">{selectedVariant?.size}</span>
+                </legend>
+                <div className="grid grid-cols-2 gap-2.5">
                   {availableSizes.map((size) => {
                     const isSelected = selectedVariant?.size === size;
                     const isAvailable = checkSizeAvailable(size);
+                    const sizePrice = priceForSize(size);
+                    const delta = sizePrice !== null ? sizePrice - price : 0;
                     return (
                       <button
                         key={size}
-                        disabled={!isAvailable}
+                        type="button"
                         onClick={() => handleSizeChange(size)}
-                        className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all ${
-                          isSelected
-                            ? 'bg-amber-500 text-zinc-950 border-amber-400 shadow-md'
-                            : !isAvailable
-                            ? 'bg-zinc-100 border-zinc-200 text-zinc-400 opacity-40 cursor-not-allowed line-through'
-                            : 'bg-zinc-50 border-zinc-200 text-zinc-800 hover:border-zinc-300'
-                        }`}
+                        aria-pressed={isSelected}
+                        className={cn(
+                          'text-left rounded-xl border-2 px-3.5 py-3 transition-all',
+                          isSelected ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200 hover:border-zinc-400',
+                          !isAvailable && 'opacity-50'
+                        )}
                       >
-                        {size}
-                        {!isAvailable && <span className="ml-1 text-[10px] no-underline">(N/A)</span>}
+                        <span className="block text-sm font-bold text-zinc-900">{size}</span>
+                        <span className="block text-xs text-zinc-500 mt-0.5">
+                          {!isAvailable
+                            ? 'Unavailable in this colour'
+                            : isSelected || delta === 0
+                            ? sizePrice !== null
+                              ? formatPrice(sizePrice)
+                              : ''
+                            : `${delta > 0 ? '+' : '−'} ${formatPrice(Math.abs(delta))}`}
+                        </span>
                       </button>
                     );
                   })}
                 </div>
-              </div>
+              </fieldset>
             )}
 
-            {/* Quantity Selector & Add To Cart Button */}
-            <div className="space-y-4 pt-2">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center bg-zinc-50 border border-zinc-200 rounded-2xl p-1">
+            {/* Assembly */}
+            <fieldset>
+              <legend className="text-sm font-bold text-zinc-900 mb-3">
+                Assembly: <span className="font-normal text-zinc-600">Self-assembly</span>
+              </legend>
+              <div className="rounded-xl border-2 border-zinc-900 bg-zinc-50 px-3.5 py-3 flex items-start gap-3">
+                <Wrench className="w-5 h-5 text-zinc-700 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-bold text-zinc-900">Self-assembly · 15–20 min</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">
+                    Pre-drilled tabletop, labelled tools and a step-by-step video guide in the box.
+                  </p>
+                </div>
+              </div>
+            </fieldset>
+
+            {/* Quantity + CTAs */}
+            <div ref={ctaRef} className="space-y-3 pt-1">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center border border-zinc-300 rounded-xl">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-2 text-zinc-600 hover:text-zinc-900 transition-colors"
+                    className="p-3 text-zinc-600 hover:text-zinc-900"
+                    aria-label="Decrease quantity"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
-                  <span className="w-10 text-center font-bold text-sm text-zinc-900">{quantity}</span>
+                  <span className="w-8 text-center font-bold text-sm" aria-live="polite">{quantity}</span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="p-2 text-zinc-600 hover:text-zinc-900 transition-colors"
+                    onClick={() => setQuantity(Math.min(variantStock || 1, quantity + 1))}
+                    className="p-3 text-zinc-600 hover:text-zinc-900"
+                    aria-label="Increase quantity"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
-
                 <button
                   onClick={handleAddToCart}
                   disabled={isOutOfStock}
-                  className={`flex-1 py-4 rounded-2xl font-black uppercase tracking-wider text-sm flex items-center justify-center gap-2 transition-all ${
+                  className={cn(
+                    'flex-1 py-3.5 rounded-xl font-black uppercase tracking-wider text-sm flex items-center justify-center gap-2 border-2 transition-all',
                     isOutOfStock
-                      ? 'bg-zinc-100 text-zinc-400 cursor-not-allowed border border-zinc-200'
-                      : 'bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow-lg shadow-amber-500/20 active:scale-[0.99]'
-                  }`}
+                      ? 'bg-zinc-100 text-zinc-400 border-zinc-200 cursor-not-allowed'
+                      : 'border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white'
+                  )}
                 >
-                  <ShoppingCart className="w-5 h-5" />
-                  {isOutOfStock ? 'Sold Out' : 'Add To Cart'}
+                  <ShoppingCart className="w-4 h-4" />
+                  {isOutOfStock ? 'Sold Out' : 'Add to Cart'}
                 </button>
               </div>
-            </div>
-
-            {/* Guarantee Cards */}
-            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-zinc-200">
-              <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3 text-center space-y-1">
-                <Truck className="w-5 h-5 text-amber-600 mx-auto" />
-                <p className="text-[11px] font-bold text-zinc-900">Free Shipping</p>
-                <p className="text-[10px] text-zinc-500">Pan India delivery</p>
-              </div>
-              <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3 text-center space-y-1">
-                <ShieldCheck className="w-5 h-5 text-amber-600 mx-auto" />
-                <p className="text-[11px] font-bold text-zinc-900">3-Year Warranty</p>
-                <p className="text-[10px] text-zinc-500">Frame & motors</p>
-              </div>
-              <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3 text-center space-y-1">
-                <RotateCcw className="w-5 h-5 text-amber-600 mx-auto" />
-                <p className="text-[11px] font-bold text-zinc-900">10-Day Trial</p>
-                <p className="text-[10px] text-zinc-500">Risk-free return</p>
-              </div>
-            </div>
-
-            {/* Collapsible Product Details Accordion */}
-            <div className="border border-zinc-200 rounded-2xl overflow-hidden divide-y divide-zinc-200">
-              {/* Section 1: Shipping */}
-              <div>
+              {!isOutOfStock && (
                 <button
-                  onClick={() => setOpenSection(openSection === 'shipping' ? null : 'shipping')}
-                  className="w-full px-5 py-4 flex items-center justify-between font-bold text-sm text-zinc-900 bg-zinc-50 hover:bg-zinc-100 transition-colors"
+                  onClick={handleBuyNow}
+                  className="w-full py-4 rounded-xl font-black uppercase tracking-wider text-sm bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
                 >
-                  <span>Shipping & Delivery</span>
-                  <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${openSection === 'shipping' ? 'rotate-180' : ''}`} />
+                  <Zap className="w-4 h-4" />
+                  Buy Now
                 </button>
-                {openSection === 'shipping' && (
-                  <div className="px-5 py-4 text-xs text-zinc-600 space-y-2 bg-white">
-                    <p>Orders dispatched within 24-48 hours. Delivered in 3-7 business days across metro cities.</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Section 2: Warranty */}
-              <div>
-                <button
-                  onClick={() => setOpenSection(openSection === 'warranty' ? null : 'warranty')}
-                  className="w-full px-5 py-4 flex items-center justify-between font-bold text-sm text-zinc-900 bg-zinc-50 hover:bg-zinc-100 transition-colors"
-                >
-                  <span>Warranty & Support</span>
-                  <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${openSection === 'warranty' ? 'rotate-180' : ''}`} />
-                </button>
-                {openSection === 'warranty' && (
-                  <div className="px-5 py-4 text-xs text-zinc-600 space-y-2 bg-white">
-                    <p>Includes a 3-Year Structural Warranty on the steel frame and a 1-Year Replacement Warranty on motors and control boxes.</p>
-                  </div>
-                )}
-              </div>
+              )}
+              <p className="flex items-center gap-2 text-xs text-zinc-600" suppressHydrationWarning>
+                <Truck className="w-4 h-4 text-zinc-500" />
+                <span>
+                  <strong className="text-zinc-900">Free shipping.</strong> Estimated delivery {deliveryFrom} – {deliveryTo}
+                </span>
+              </p>
             </div>
-          </div>
-        </div>
 
-        {/* Product Feature Infographic / Showcase Section */}
-        {displayFeatures && displayFeatures.length > 0 && (
-          <ProductFeatureShowcase features={displayFeatures} />
-        )}
-
-        {/* Customer Reviews Section */}
-        <div className="border-t border-zinc-200 pt-16 space-y-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-black text-zinc-900">Customer Verified Reviews</h2>
-              <p className="text-xs text-zinc-500 mt-1">Read what standing desk owners say about Fittrock ergonomics.</p>
-            </div>
-            {reviewsList.length > 0 && (
-              <div className="inline-flex items-center gap-2.5 bg-amber-50 border border-amber-200 px-4 py-2 rounded-2xl self-start sm:self-auto">
-                <div className="flex text-amber-500">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  ))}
+            {/* Trust row */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {[
+                { icon: Truck, title: 'Free Shipping', sub: 'Pan-India' },
+                { icon: ShieldCheck, title: `${warrantyYears}-Yr Warranty`, sub: 'Frame structure' },
+                { icon: RotateCcw, title: '10-Day Trial', sub: 'Doorstep pickup' },
+                { icon: FileText, title: 'GST Invoice', sub: 'Claim ITC' },
+              ].map(({ icon: Icon, title, sub }) => (
+                <div key={title} className="border border-zinc-200 rounded-xl p-2.5 text-center">
+                  <Icon className="w-5 h-5 text-amber-600 mx-auto" />
+                  <p className="text-[11px] font-bold text-zinc-900 mt-1">{title}</p>
+                  <p className="text-[10px] text-zinc-500">{sub}</p>
                 </div>
-                <span className="text-xs font-bold text-amber-950">{avgRating} out of 5 ({reviewsCount} {reviewsCount === 1 ? 'Review' : 'Reviews'})</span>
-              </div>
-            )}
-          </div>
-
-          {reviewsList.length === 0 ? (
-            <div className="text-center py-12 bg-zinc-50 rounded-2xl border border-zinc-200 space-y-2">
-              <p className="text-sm font-bold text-zinc-800">No customer reviews yet</p>
-              <p className="text-xs text-zinc-500">Be the first to review this product after purchase!</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {reviewsList.map((rev) => (
-                <ReviewCard key={rev.id} review={rev} />
               ))}
             </div>
+
+            {/* Bulk / office callout */}
+            <Link
+              href="/contact"
+              className="flex items-center gap-3 rounded-xl bg-zinc-900 text-white px-4 py-3.5 hover:bg-zinc-800"
+            >
+              <Building2 className="w-5 h-5 text-amber-400 shrink-0" />
+              <span className="text-sm">
+                <strong>Buying for an office?</strong>{' '}
+                <span className="text-zinc-300">Get bulk pricing and GST billing.</span>
+              </span>
+              <ChevronRight className="w-4 h-4 ml-auto" />
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* ───────── Sticky section tabs ───────── */}
+      <div className="sticky top-16 sm:top-20 z-30 mt-14 bg-white/95 backdrop-blur border-y border-zinc-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-6 overflow-x-auto">
+          {SECTIONS.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => scrollTo(s.id)}
+              className={cn(
+                'py-3.5 text-sm font-bold whitespace-nowrap border-b-2 -mb-px transition-colors',
+                activeSection === s.id
+                  ? 'border-amber-500 text-zinc-900'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-900'
+              )}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Overview */}
+        <section id="overview" className="pt-14 scroll-mt-36">
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-6">Overview</h2>
+          {displayFeatures && displayFeatures.length > 0 && <ProductFeatureShowcase features={displayFeatures} />}
+          {(formattedDescription || heroSummary) && (
+            <div className="max-w-4xl mt-6">
+              {formattedDescription && formattedDescription.includes('<') ? (
+                <div
+                  className="product-description-content max-w-none text-[15px] text-zinc-700 leading-relaxed space-y-4"
+                  dangerouslySetInnerHTML={{ __html: formattedDescription }}
+                />
+              ) : (
+                <p className="text-[15px] text-zinc-700 leading-relaxed whitespace-pre-line">
+                  {formattedDescription || heroSummary}
+                </p>
+              )}
+            </div>
           )}
+        </section>
+
+        {/* Specifications */}
+        <section id="specifications" className="pt-16 scroll-mt-36">
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-6">Technical Specifications</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {specGroups.map((group) => (
+              <div key={group.title} className="border border-zinc-200 rounded-2xl overflow-hidden">
+                <h3 className="bg-zinc-50 px-5 py-3 text-sm font-black uppercase tracking-wider text-zinc-700 border-b border-zinc-200">
+                  {group.title}
+                </h3>
+                <dl className="divide-y divide-zinc-100">
+                  {group.rows.map(([k, v]) => (
+                    <div key={k} className="grid grid-cols-5 gap-3 px-5 py-3 text-sm">
+                      <dt className="col-span-2 text-zinc-500">{k}</dt>
+                      <dd className="col-span-3 font-semibold text-zinc-900">{v}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Reviews */}
+        <section id="reviews" className="pt-16 scroll-mt-36">
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-6">Customer Reviews</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-4 border border-zinc-200 rounded-2xl p-6 h-fit">
+              <div className="flex items-end gap-2">
+                <span className="text-5xl font-black">{reviewsCount > 0 ? avgRating : '–'}</span>
+                <span className="text-sm text-zinc-500 mb-1.5">out of 5</span>
+              </div>
+              <div className="flex mt-2">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={cn(
+                      'w-5 h-5',
+                      reviewsCount > 0 && i < Math.round(Number(avgRating)) ? 'fill-amber-400 text-amber-400' : 'text-zinc-300'
+                    )}
+                  />
+                ))}
+              </div>
+              <p className="text-xs text-zinc-500 mt-1">
+                Based on {reviewsCount} {reviewsCount === 1 ? 'review' : 'reviews'}
+              </p>
+              <div className="mt-5 space-y-2">
+                {ratingBuckets.map((b) => (
+                  <div key={b.star} className="flex items-center gap-2 text-xs">
+                    <span className="w-6 text-zinc-600">{b.star}★</span>
+                    <span className="flex-1 h-2 rounded-full bg-zinc-100 overflow-hidden">
+                      <span className="block h-full bg-amber-400" style={{ width: `${b.pct}%` }} />
+                    </span>
+                    <span className="w-8 text-right text-zinc-500">{b.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="lg:col-span-8">
+              {reviewsList.length === 0 ? (
+                <div className="text-center py-12 bg-zinc-50 rounded-2xl border border-zinc-200 space-y-2">
+                  <p className="text-sm font-bold text-zinc-800">No customer reviews yet</p>
+                  <p className="text-xs text-zinc-500">Be the first to review this product after purchase!</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {reviewsList.map((rev, i) => (
+                    <ReviewCard key={rev.id || i} review={rev} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* FAQs */}
+        <section id="faqs" className="pt-16 scroll-mt-36">
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-6">Frequently Asked Questions</h2>
+          <div className="border-t border-zinc-200">
+            {productFaqs.map((faq, i) => {
+              const open = openFaq === i;
+              return (
+                <div key={faq.question} className="border-b border-zinc-200">
+                  <button
+                    onClick={() => setOpenFaq(open ? null : i)}
+                    aria-expanded={open}
+                    className="w-full flex items-center gap-4 py-5 text-left"
+                  >
+                    <span className="text-sm font-black text-amber-600 w-6">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="flex-1 font-bold text-zinc-900">{faq.question}</span>
+                    <ChevronDown className={cn('w-5 h-5 text-zinc-500 transition-transform', open && 'rotate-180')} />
+                  </button>
+                  {open && <p className="pb-5 pl-10 pr-8 text-sm text-zinc-600 leading-relaxed">{faq.answer}</p>}
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-amber-50 border border-amber-200 p-6">
+            <div>
+              <p className="font-black text-zinc-900">Still have questions?</p>
+              <p className="text-sm text-zinc-600">Speak with a Fittrock ergonomics expert before you buy.</p>
+            </div>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-900 text-white px-5 py-3 text-sm font-bold hover:bg-zinc-800"
+            >
+              Contact us <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </section>
+      </div>
+
+      {/* ───────── Sticky purchase bar ───────── */}
+      <div
+        className={cn(
+          'fixed bottom-0 inset-x-0 z-40 bg-white border-t border-zinc-200 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] transition-transform duration-300',
+          showStickyBar ? 'translate-y-0' : 'translate-y-full'
+        )}
+        aria-hidden={!showStickyBar}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3">
+          <img src={currentImage} alt="" className="hidden sm:block w-12 h-12 rounded-lg object-cover border border-zinc-200" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold truncate">{product.name}</p>
+            <p className="text-xs text-zinc-500 truncate">
+              {[selectedVariant?.color, selectedVariant?.size]
+                .filter((x) => x && x !== 'Default Color' && x !== 'Standard')
+                .join(' · ')}
+              <span className="ml-2 font-bold text-zinc-900">{formatPrice(price)}</span>
+            </p>
+          </div>
+          <button
+            onClick={handleAddToCart}
+            disabled={isOutOfStock}
+            tabIndex={showStickyBar ? 0 : -1}
+            className="hidden sm:inline-flex items-center gap-2 px-5 py-3 rounded-xl border-2 border-zinc-900 text-sm font-black uppercase tracking-wider hover:bg-zinc-900 hover:text-white disabled:opacity-40"
+          >
+            <ShoppingCart className="w-4 h-4" /> Add to Cart
+          </button>
+          <button
+            onClick={handleBuyNow}
+            disabled={isOutOfStock}
+            tabIndex={showStickyBar ? 0 : -1}
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-sm font-black uppercase tracking-wider disabled:opacity-40"
+          >
+            {isOutOfStock ? 'Sold Out' : 'Buy Now'}
+          </button>
         </div>
       </div>
     </div>

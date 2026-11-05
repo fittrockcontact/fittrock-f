@@ -128,13 +128,39 @@ export default async function ProductPage({ params }: Props) {
     productData.description ||
     `Fittrock ${productName} motorized height adjustable standing desk with German-spec motors and 3-Year Warranty.`;
 
+  // Real review data only: Google treats ratings that don't match visible reviews as misleading markup.
+  const reviews: Array<{ rating?: number | string }> = Array.isArray(productData.reviews) ? productData.reviews : [];
+  const ratedReviews = reviews.filter((r) => Number(r.rating) > 0);
+  const aggregateRating =
+    ratedReviews.length > 0
+      ? {
+          '@type': 'AggregateRating',
+          ratingValue: (
+            ratedReviews.reduce((acc, r) => acc + Number(r.rating), 0) / ratedReviews.length
+          ).toFixed(1),
+          reviewCount: String(ratedReviews.length),
+          bestRating: '5',
+          worstRating: '1',
+        }
+      : undefined;
+
+  const variantList: Array<{ price?: string; stockQuantity?: number; inventoryQuantity?: number }> =
+    Array.isArray(productData.variants) ? productData.variants : [];
+  const variantPrices = variantList.map((v) => parseFloat(v.price || '')).filter((n) => n > 0);
+  const inStock =
+    variantList.length === 0 || variantList.some((v) => (v.stockQuantity ?? v.inventoryQuantity ?? 1) > 0);
+  const productImages: string[] = [
+    productImage,
+    ...(Array.isArray(productData.images) ? productData.images.map((i: { url?: string }) => i?.url) : []),
+  ].filter((u, i, arr): u is string => Boolean(u) && arr.indexOf(u) === i).slice(0, 10);
+
   // Product Schema.org JSON-LD (Latest Search Central / Merchant Return Policy standard)
   const productJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: productName,
     description: productDescription,
-    image: [productImage],
+    image: productImages,
     sku: productData.slug || `FT-${productData.id}`,
     mpn: productData.id,
     brand: {
@@ -150,10 +176,10 @@ export default async function ProductPage({ params }: Props) {
       '@type': 'Offer',
       url: `${siteUrl}/products/${slug}`,
       priceCurrency: 'INR',
-      price: productPrice,
+      price: variantPrices.length > 0 ? Math.min(...variantPrices).toFixed(2) : productPrice,
       priceValidUntil: '2027-12-31',
       itemCondition: 'https://schema.org/NewCondition',
-      availability: 'https://schema.org/InStock',
+      availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       seller: {
         '@type': 'Organization',
         name: 'FITTROCK ERGONOMICS LLP',
@@ -162,7 +188,7 @@ export default async function ProductPage({ params }: Props) {
         '@type': 'MerchantReturnPolicy',
         applicableCountry: 'IN',
         returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-        merchantReturnDays: 30,
+        merchantReturnDays: 10,
         returnMethod: 'https://schema.org/ReturnByMail',
         returnFees: 'https://schema.org/FreeReturn',
       },
@@ -187,20 +213,14 @@ export default async function ProductPage({ params }: Props) {
           },
           transitTime: {
             '@type': 'QuantitativeValue',
-            minValue: 2,
-            maxValue: 5,
+            minValue: 5,
+            maxValue: 7,
             unitCode: 'DAY',
           },
         },
       },
     },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      reviewCount: '148',
-      bestRating: '5',
-      worstRating: '1',
-    },
+    ...(aggregateRating ? { aggregateRating } : {}),
   };
 
   // Breadcrumbs Schema
